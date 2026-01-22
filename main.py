@@ -9,6 +9,7 @@ app = Flask(__name__, template_folder='template')
 
 GROUPS_URL = "https://api.smartsheet.com/2.0/groups"
 USERS_URL = "https://api.smartsheet.com/2.0/users"
+SHEETS_URL = "https://api.smartsheet.com/2.0/sheets"
 
 # Route to get group data
 @app.route("/", methods=["GET", "POST"])
@@ -80,6 +81,38 @@ def fetch_users():
         )
 
     return render_template("users.html")
+
+@app.route("/sheets", methods=["GET","POST"])
+def fetch_sheets():
+    error = None
+    if request.method == "POST":
+        api_key = request.form.get("api_key")
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        response = requests.get(SHEETS_URL, headers=headers, verify=False)
+
+        if response.status_code != 200:
+            return "Invalid API key or API error", 400
+
+        data = response.json().get("data", [])
+        df = pd.DataFrame(data)
+
+        # Create CSV in memory
+        output = BytesIO()
+        df.to_csv(output, index=False)
+        output.seek(0)
+
+        return send_file(
+            output,
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name="smartsheet_sheets.csv"
+        )
+
+    return render_template("sheets.html")
+
 
 
 
