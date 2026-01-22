@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smartsheet Admin Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <header class="navbar">
+        <div class="container">
+            <a class="logo" href="#">
+                SheetOps <span>Smartsheet Admin Utilities</span>
+            </a>
+
+            <nav>
+                <a href="#">Home</a>
+                <a href="#">Docs</a>
+                <a href="#">About</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <div class="card">
+            <h2>Group Management Export</h2>
+            <p class="subtitle">
+                Generate a CSV of Smartsheet group metadata using your API key.
+            </p>
+
+            <form method="POST">
+                <label>Smartsheet API Key</label>
+                <input
+                    type="password"
+                    name="api_key"
+                    required
+                    placeholder="Enter your API key"
+                >
+
+                <button type="submit" class="btn success">
+                    Generate CSV
+                </button>
+            </form>
+
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+        </div>
+    </main>
+
+</body>
+</html>
