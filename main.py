@@ -7,47 +7,79 @@ urllib3.disable_warnings()
 
 app = Flask(__name__, template_folder='template')
 
-SMRTSHEET_GROUPS_URL = "https://api.smartsheet.com/2.0/groups"
+GROUPS_URL = "https://api.smartsheet.com/2.0/groups"
+USERS_URL = "https://api.smartsheet.com/2.0/users"
 
+# Route to get group data
 @app.route("/", methods=["GET", "POST"])
-def index():
+def fetch_groups():
     error = None
 
     if request.method == "POST":
-        action = request.form.get("action")
         api_key = request.form.get("api_key")
-
-        if not api_key:
-            return render_template("index.html", error="API key is required")
 
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
 
-        response = requests.get(SMRTSHEET_GROUPS_URL, headers=headers, verify=False)
+        response = requests.get(GROUPS_URL, headers=headers, verify=False)
 
         if response.status_code != 200:
-            return render_template("index.html", error="Invalid API key or API error")
+            return "Invalid API key or API error", 400
+
+        data = response.json().get("data", [])
+
+        # Convert to DataFrame
+        df = pd.DataFrame(data)
+
+        # Create CSV in memory
+        output = BytesIO()
+        df.to_csv(output, index=False)
+        output.seek(0)
+
+        return send_file(
+            output,
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name="smartsheet_groups.csv"
+        )
+
+    return render_template("index.html")
+
+# Route to get user data
+@app.route("/users", methods = ["GET","POST"])
+def fetch_users():
+    error = None
+
+    if request.method == "POST":
+        api_key = request.form.get("api_key")
+
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        response = requests.get(USERS_URL, headers=headers, verify=False)
+
+        if response.status_code != 200:
+            return "Invalid API key or API error", 400
 
         data = response.json().get("data", [])
         df = pd.DataFrame(data)
 
-        # -------- CSV --------
-        if action == "csv":
-            output = BytesIO()
-            df.to_csv(output, index=False)
-            output.seek(0)
+        # Create CSV in memory
+        output = BytesIO()
+        df.to_csv(output, index=False)
+        output.seek(0)
 
-            return send_file(
-                output,
-                mimetype="text/csv",
-                as_attachment=True,
-                download_name="smartsheet_groups.csv"
-            )
+        return send_file(
+            output,
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name="smartsheet_users.csv"
+        )
 
-    # GET request OR after CSV download
-    return render_template("index.html")
+    return render_template("users.html")
 
 
 
