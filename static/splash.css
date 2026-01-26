@@ -72,7 +72,14 @@ body {
     color: #f8fafc;
 }
 
+
 .hero-content p {
+    margin-top: 1.5rem;
+    font-size: 1.05rem;
+    color: #cbd5e1;
+    line-height: 1.6;
+}
+.hero-content ul li {
     margin-top: 1.5rem;
     font-size: 1.05rem;
     color: #cbd5e1;

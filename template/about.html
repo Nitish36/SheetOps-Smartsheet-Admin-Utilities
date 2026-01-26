@@ -3,7 +3,7 @@
 <head>
     <title>Smartsheet Admin Center</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='splash.css') }}">
 </head>
 <body>
 
@@ -21,33 +21,32 @@
 </header>
 
     <!-- Main Content -->
-    <main class="main-container">
-        <div class="card">
-            <h2>About Sheet Ops</h2>
-            <p class="subtitle">
-                Sheet Ops is a lightweight internal utility designed to simplify administrative 
-                tasks in Smartsheet.
-                <br><br>
-                It allows users to securely connect to Smartsheet using an API key and export admin 
-                data such as group information in a structured format. The focus is on speed, simplicity, 
-                and ease of use.
-                <br><br>
-                Sheet Ops is designed to reduce manual effort and provide quick access to Smartsheet admin 
-                data through a clean, minimal interface.
-                <br><br>
-            </p>
-            <h2>What Sheet Ops Does</h2>
-            <p class="subtitle">
-                <ul>
-                    <li>Securely connects to Smartsheet using user-provided API keys</li>
-                    <li>Retrieves administrative data from Smartsheet</li>
-                    <li>Exports data in easy-to-use formats like CSV</li>
-                    <li>Focuses on simplicity, clarity, and performance</li>
-                </ul>
-            </p>
-            
-        </div>
-    </main>
+    <section class="hero">
+    <div class="hero-content">
+        <h2>About Sheet Ops</h2>
+        <p>
+            Sheet Ops is a lightweight internal utility designed to simplify administrative 
+            tasks in Smartsheet.
+            <br><br>
+            It allows users to securely connect to Smartsheet using an API key and export admin 
+            data such as group information in a structured format. The focus is on speed, simplicity, 
+            and ease of use.
+            <br><br>
+            Sheet Ops is designed to reduce manual effort and provide quick access to Smartsheet admin 
+            data through a clean, minimal interface.
+            <br><br>
+        </p>
+        <h2>What Sheet Ops Does</h2>
+        <ul>
+            <li>Securely connects to Smartsheet using user-provided API keys</li>
+            <li>Retrieves administrative data from Smartsheet</li>
+            <li>Exports data in easy-to-use formats like CSV</li>
+            <li>Focuses on simplicity, clarity, and performance</li>
+        </ul>
+    </div>
+
+</section>
+
 
 </body>
 </html>
