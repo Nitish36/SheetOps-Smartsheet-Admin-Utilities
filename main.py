@@ -11,6 +11,7 @@ GROUPS_URL = "https://api.smartsheet.com/2.0/groups"
 USERS_URL = "https://api.smartsheet.com/2.0/users"
 SHEETS_URL = "https://api.smartsheet.com/2.0/sheets"
 REPORTS_URL = "https://api.smartsheet.com/2.0/reports"
+WORKSPACE_URL = "https://api.smartsheet.com/2.0/workspaces"
 
 @app.route("/", methods=["GET","POST"])
 def fetch_home():
@@ -145,10 +146,103 @@ def fetch_reports():
             output,
             mimetype="text/csv",
             as_attachment=True,
-            download_name="smartsheet_dashboard.csv"
+            download_name="smartsheet_report.csv"
         )
 
     return render_template("reports.html")
+
+@app.route("/webhooks", methods=["GET","POST"])
+def fetch_webhooks():
+    error = None
+    if request.method == "POST":
+        api_key = request.form.get("api_key")
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        response = requests.get(REPORTS_URL, headers=headers, verify=False)
+
+        if response.status_code != 200:
+            return "Invalid API key or API error", 400
+
+        data = response.json().get("data", [])
+        df = pd.DataFrame(data)
+
+        # Create CSV in memory
+        output = BytesIO()
+        df.to_csv(output, index=False)
+        output.seek(0)
+
+        return send_file(
+            output,
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name="smartsheet_webhook.csv"
+        )
+
+    return render_template("webhook.html")
+
+@app.route("/dashboards", methods=["GET","POST"])
+def fetch_dashboards():
+    error = None
+    if request.method == "POST":
+        api_key = request.form.get("api_key")
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        response = requests.get(REPORTS_URL, headers=headers, verify=False)
+
+        if response.status_code != 200:
+            return "Invalid API key or API error", 400
+
+        data = response.json().get("data", [])
+        df = pd.DataFrame(data)
+
+        # Create CSV in memory
+        output = BytesIO()
+        df.to_csv(output, index=False)
+        output.seek(0)
+
+        return send_file(
+            output,
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name="smartsheet_dashboard.csv"
+        )
+
+    return render_template("dashboard.html")
+
+@app.route("/workspaces", methods=["GET","POST"])
+def fetch_workspace():
+    error = None
+    if request.method == "POST":
+        api_key = request.form.get("api_key")
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        response = requests.get(WORKSPACE_URL, headers=headers, verify=False)
+
+        if response.status_code != 200:
+            return "Invalid API key or API error", 400
+
+        data = response.json().get("data", [])
+        df = pd.DataFrame(data)
+
+        # Create CSV in memory
+        output = BytesIO()
+        df.to_csv(output, index=False)
+        output.seek(0)
+
+        return send_file(
+            output,
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name="smartsheet_workspace.csv"
+        )
+
+    return render_template("workspace.html")
 
 @app.route("/about", methods=["GET","POST"])
 def fetch_about():
