@@ -12,8 +12,13 @@ USERS_URL = "https://api.smartsheet.com/2.0/users"
 SHEETS_URL = "https://api.smartsheet.com/2.0/sheets"
 REPORTS_URL = "https://api.smartsheet.com/2.0/reports"
 
+@app.route("/", methods=["GET","POST"])
+def fetch_home():
+    error = None
+    return render_template("index.html")
+
 # Route to get group data
-@app.route("/", methods=["GET", "POST"])
+@app.route("/groups", methods=["GET", "POST"])
 def fetch_groups():
     error = None
 
@@ -47,7 +52,7 @@ def fetch_groups():
             download_name="smartsheet_groups.csv"
         )
 
-    return render_template("index.html")
+    return render_template("group.html")
 
 # Route to get user data
 @app.route("/users", methods = ["GET","POST"])

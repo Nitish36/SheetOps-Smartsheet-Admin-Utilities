@@ -1,0 +1,89 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Montserrat", sans-serif;
+}
+
+body {
+    background-color: #0f172a;
+    color: #e5e7eb;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 3rem;
+}
+
+.logo {
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: #f8fafc;
+}
+
+.navbar nav a {
+    margin-left: 2rem;
+    text-decoration: none;
+    color: #cbd5e1;
+    font-weight: 500;
+}
+
+.navbar nav a:hover {
+    color: #60a5fa;
+}
+
+/* Hero Section */
+.hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4rem 3rem;
+    min-height: 80vh;
+}
+
+.hero-content {
+    max-width: 520px;
+}
+
+.hero-content h1 {
+    font-size: 3.2rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #f8fafc;
+}
+
+.hero-content p {
+    margin-top: 1.5rem;
+    font-size: 1.05rem;
+    color: #cbd5e1;
+    line-height: 1.6;
+}
+
+.btn-primary {
+    display: inline-block;
+    margin-top: 2rem;
+    padding: 0.8rem 1.8rem;
+    background-color: #2563eb;
+    color: white;
+    text-decoration: none;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: #1d4ed8;
+}
+
+/* Graph Section */
+.hero-graph {
+    width: 55%;
+    height: 100%;
+}
+
+.hero-graph svg {
+    width: 100%;
+    height: auto;
+}

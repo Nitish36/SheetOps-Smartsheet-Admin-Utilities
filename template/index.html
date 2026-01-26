@@ -1,56 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Smartsheet Admin Center</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <title>Sheet Ops</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='splash.css') }}">
 </head>
 <body>
 
-    <!-- Navigation -->
-    <header class="navbar">
-        <div class="container">
-            <a class="logo" href="#">
-                SheetOps <span>Smartsheet Admin Utilities</span>
-            </a>
+<header class="navbar">
+    <div class="logo">Sheet Ops</div>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/groups">Groups</a>
+        <a href="/users">Users</a>
+        <a href="/sheets">Sheets</a>
+        <a href="/reports">Reports</a>
+        <a href="/about">About</a>
+    </nav>
+</header>
 
-            <nav>
-                <a href="/">Home</a>
-                <a href="/users">Users</a>
-                <a href="/sheets">Sheets</a>
-                <a href="/reports">Reports</a>
-                <a href="/about">About</a>
-            </nav>
-        </div>
-    </header>
+<section class="hero">
+    <div class="hero-content">
+        <h1>Simple Smartsheet<br>Admin Operations</h1>
+        <p>
+            A lightweight internal tool to export and manage Smartsheet
+            administrative data quickly and securely.
+        </p>
+        <a href="/services" class="btn-primary">Get Started</a>
+    </div>
 
-    <!-- Main Content -->
-    <main class="main-container">
-        <div class="card">
-            <h2>Group Management Export</h2>
-            <p class="subtitle">
-                Generate a CSV of Smartsheet group metadata using your API key.
-            </p>
+    <div class="hero-graph">
+        <svg viewBox="0 0 1440 500" preserveAspectRatio="none">
+            <path d="M0,300 C240,200 480,350 720,250 960,150 1200,200 1440,120 L1440,500 L0,500 Z"
+                  fill="#1e40af" opacity="0.7"></path>
 
-            <form method="POST">
-                <label>Smartsheet API Key</label>
-                <input
-                    type="password"
-                    name="api_key"
-                    required
-                    placeholder="Enter your API key"
-                >
-
-                <button type="submit" class="btn success">
-                    Generate CSV
-                </button>
-            </form>
-
-            {% if error %}
-                <p class="error">{{ error }}</p>
-            {% endif %}
-        </div>
-    </main>
+            <path d="M0,350 C300,250 600,400 900,300 1150,220 1300,260 1440,200"
+                  fill="none" stroke="#60a5fa" stroke-width="3"/>
+        </svg>
+    </div>
+</section>
 
 </body>
 </html>
