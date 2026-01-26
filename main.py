@@ -113,7 +113,9 @@ def fetch_sheets():
 
     return render_template("sheets.html")
 
-
+@app.route("/about", methods=["GET","POST"])
+def fetch_about():
+    return render_template("about.html")
 
 
 if __name__ == "__main__":

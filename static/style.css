@@ -65,6 +65,10 @@ body {
     color: #cfcbe5;
     margin-bottom: 1.5rem;
 }
+ul li{
+    font-size: 0.9rem;
+    color: #cfcbe5;
+}
 
 /* Form */
 label {
