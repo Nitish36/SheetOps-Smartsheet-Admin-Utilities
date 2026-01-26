@@ -3,15 +3,23 @@ import requests
 import pandas as pd
 from io import BytesIO
 import urllib3
+import secrets
 urllib3.disable_warnings()
 
+def secret_key():
+    token = secrets.token_hex(10)
+    return token
+
 app = Flask(__name__, template_folder='template')
+app.config['SECRET_KEY'] = secret_key()
 
 GROUPS_URL = "https://api.smartsheet.com/2.0/groups"
 USERS_URL = "https://api.smartsheet.com/2.0/users"
 SHEETS_URL = "https://api.smartsheet.com/2.0/sheets"
 REPORTS_URL = "https://api.smartsheet.com/2.0/reports"
 WORKSPACE_URL = "https://api.smartsheet.com/2.0/workspaces"
+WEBHOOK_URL = "https://api.smartsheet.com/2.0/webhooks"
+DASHBOARD_URL = "https://api.smartsheet.com/2.0/sights"
 
 @app.route("/", methods=["GET","POST"])
 def fetch_home():
@@ -160,7 +168,7 @@ def fetch_webhooks():
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
-        response = requests.get(REPORTS_URL, headers=headers, verify=False)
+        response = requests.get(WEBHOOK_URL, headers=headers, verify=False)
 
         if response.status_code != 200:
             return "Invalid API key or API error", 400
@@ -191,7 +199,7 @@ def fetch_dashboards():
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
-        response = requests.get(REPORTS_URL, headers=headers, verify=False)
+        response = requests.get(DASHBOARD_URL, headers=headers, verify=False)
 
         if response.status_code != 200:
             return "Invalid API key or API error", 400
