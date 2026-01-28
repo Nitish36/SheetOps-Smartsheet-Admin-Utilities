@@ -4,6 +4,9 @@ import pandas as pd
 from io import BytesIO
 import urllib3
 import secrets
+from scripts.workspace import get_workspace
+from scripts.sheets import get_sheets
+
 urllib3.disable_warnings()
 
 def secret_key():
@@ -116,7 +119,7 @@ def fetch_sheets():
         if response.status_code != 200:
             return "Invalid API key or API error", 400
 
-        data = response.json().get("data", [])
+        data = get_sheets(SHEETS_URL,headers)
         df = pd.DataFrame(data)
 
         # Create CSV in memory
@@ -240,7 +243,7 @@ def fetch_workspace():
         if response.status_code != 200:
             return "Invalid API key or API error", 400
 
-        data = response.json().get("data", [])
+        data = get_workspace(WORKSPACE_URL,headers)
         df = pd.DataFrame(data)
 
         # Create CSV in memory
