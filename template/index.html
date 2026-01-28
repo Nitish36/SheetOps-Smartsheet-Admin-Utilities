@@ -5,8 +5,19 @@
     <title>Sheet Ops</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='splash.css') }}">
+    <script src="{{ url_for('static', filename='splash.js') }}"></script>
 </head>
 <body>
+<!-- Splash -->
+<div id="splash">
+  <div class="splash-content">
+    <img src="static/sheetops.png" alt="SheetOps Logo" />
+    <h1>SheetOps</h1>
+    <p>Smartsheet Admin Utilities</p>
+    <div class="loader"></div>
+  </div>
+</div>
+<!-- ---  -->
 
 <header class="navbar">
     <div class="logo">Sheet Ops</div>
