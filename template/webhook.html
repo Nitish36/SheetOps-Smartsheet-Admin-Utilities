@@ -4,6 +4,7 @@
     <title>Smartsheet Admin Center</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='splash.js') }}"></script>
 </head>
 <body>
 
@@ -33,7 +34,7 @@
                     placeholder="Enter your API key"
                 >
 
-                <button type="submit" class="btn success">
+                <button type="submit" class="btn success" onclick="myFunction()"">
                     Generate CSV
                 </button>
                 <div id="snackbar">API Key Submitted</div>

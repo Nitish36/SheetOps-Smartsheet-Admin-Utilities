@@ -115,8 +115,8 @@ input[type=password] {
   visibility: hidden;
   min-width: 250px;
   margin-left: -125px;
-  background-color: #333;
-  color: #fff;
+  background-color: #ff9800;
+  color: #000000;
   text-align: center;
   border-radius: 2px;
   padding: 16px;

@@ -6,6 +6,9 @@ import urllib3
 import secrets
 from scripts.workspace import get_workspace
 from scripts.sheets import get_sheets
+from scripts.dashboard import get_dashboard
+from scripts.report import get_reports
+from scripts.groups import get_group_members,get_all_groups,safe_get,build_group_dataframe
 
 urllib3.disable_warnings()
 
@@ -52,14 +55,16 @@ def fetch_groups():
         if response.status_code != 200:
             return "Invalid API key or API error", 400
 
-        data = response.json().get("data", [])
+        groups = get_all_groups(GROUPS_URL, headers)
+        rows, skipped = get_group_members(GROUPS_URL, headers, groups)
+        df = build_group_dataframe(rows)
 
         # Convert to DataFrame
-        df = pd.DataFrame(data)
+        g_df = pd.DataFrame(df)
 
         # Create CSV in memory
         output = BytesIO()
-        df.to_csv(output, index=False)
+        g_df.to_csv(output, index=False)
         output.seek(0)
 
         return send_file(
@@ -150,7 +155,7 @@ def fetch_reports():
         if response.status_code != 200:
             return "Invalid API key or API error", 400
 
-        data = response.json().get("data", [])
+        data = get_reports(REPORTS_URL,headers)
         df = pd.DataFrame(data)
 
         # Create CSV in memory
@@ -181,7 +186,7 @@ def fetch_webhooks():
         if response.status_code != 200:
             return "Invalid API key or API error", 400
 
-        data = response.json().get("data", [])
+        data = get_workspace(WEBHOOK_URL,headers)
         df = pd.DataFrame(data)
 
         # Create CSV in memory
@@ -212,7 +217,7 @@ def fetch_dashboards():
         if response.status_code != 200:
             return "Invalid API key or API error", 400
 
-        data = response.json().get("data", [])
+        data = get_dashboard(DASHBOARD_URL,headers)
         df = pd.DataFrame(data)
 
         # Create CSV in memory

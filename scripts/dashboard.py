@@ -5,8 +5,8 @@ import time
 
 urllib3.disable_warnings()
 
-def get_webhooks(url,headers):
-    all_webhooks = []
+def get_dashboard(url, headers):
+    all_dashboards = []
     page = 1
     page_size = 200   # ✅ max allowed
 
@@ -25,13 +25,13 @@ def get_webhooks(url,headers):
         if not batch:
             break
 
-        all_webhooks.extend(batch)
+        all_dashboards.extend(batch)
 
-        print(f"Fetched page {page} | Total sheets so far: {len(all_webhooks)}")
+        print(f"Fetched page {page} | Total Dasboards so far: {len(all_dashboards)}")
 
         if page >= data.get("totalPages", 0):
             break
 
         page += 1
         time.sleep(1)  # ⏱ polite to API
-        return all_webhooks
+        return all_dashboards

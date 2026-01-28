@@ -5,10 +5,10 @@ import time
 
 urllib3.disable_warnings()
 
-def get_webhooks(url,headers):
-    all_webhooks = []
+def get_reports(url, headers):
+    all_reports = []
     page = 1
-    page_size = 200   # ✅ max allowed
+    page_size = 100   # ✅ max allowed
 
     while True:
         params = {
@@ -25,13 +25,13 @@ def get_webhooks(url,headers):
         if not batch:
             break
 
-        all_webhooks.extend(batch)
+        all_reports.extend(batch)
 
-        print(f"Fetched page {page} | Total sheets so far: {len(all_webhooks)}")
+        print(f"Fetched page {page} | Total sheets so far: {len(all_reports)}")
 
         if page >= data.get("totalPages", 0):
             break
 
         page += 1
         time.sleep(1)  # ⏱ polite to API
-        return all_webhooks
+        return all_reports
