@@ -1,6 +1,5 @@
 import requests
 import urllib3
-import pandas as pd
 import time
 
 urllib3.disable_warnings()
@@ -27,7 +26,7 @@ def get_dashboard(url, headers):
 
         all_dashboards.extend(batch)
 
-        print(f"Fetched page {page} | Total Dasboards so far: {len(all_dashboards)}")
+        print(f"Fetched page {page} | Total Dashboards so far: {len(all_dashboards)}")
 
         if page >= data.get("totalPages", 0):
             break

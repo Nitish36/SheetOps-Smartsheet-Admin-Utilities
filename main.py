@@ -8,7 +8,8 @@ from scripts.workspace import get_workspace
 from scripts.sheets import get_sheets
 from scripts.dashboard import get_dashboard
 from scripts.report import get_reports
-from scripts.groups import get_group_members,get_all_groups,safe_get,build_group_dataframe
+from scripts.groups import get_group_members,get_all_groups,build_group_dataframe
+from scripts.users import get_users
 
 urllib3.disable_warnings()
 
@@ -93,7 +94,7 @@ def fetch_users():
         if response.status_code != 200:
             return "Invalid API key or API error", 400
 
-        data = response.json().get("data", [])
+        data = get_users(USERS_URL,headers)
         df = pd.DataFrame(data)
 
         # Create CSV in memory

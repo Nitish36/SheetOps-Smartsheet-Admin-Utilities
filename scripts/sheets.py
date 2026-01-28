@@ -1,6 +1,5 @@
 import requests
 import urllib3
-import pandas as pd
 import time
 
 urllib3.disable_warnings()
