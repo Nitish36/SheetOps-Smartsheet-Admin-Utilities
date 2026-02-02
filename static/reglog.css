@@ -125,3 +125,60 @@ button[type="submit"]:hover {
   display: none;
   margin-top: 4px;
 }
+
+.back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+
+  color: #e5e7eb;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 8px 14px;
+
+  border-radius: 6px;
+  backdrop-filter: blur(6px);
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(-2px);
+}
+.password-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.eye-btn {
+  background-color: #334155;
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-radius: 4px;
+}
+
+.eye-btn:hover {
+  background-color: #1e293b;
+}
+
+.gen-btn {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.gen-btn:hover {
+  background-color: #1d4ed8;
+}

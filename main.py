@@ -28,6 +28,11 @@ WORKSPACE_URL = "https://api.smartsheet.com/2.0/workspaces"
 WEBHOOK_URL = "https://api.smartsheet.com/2.0/webhooks"
 DASHBOARD_URL = "https://api.smartsheet.com/2.0/sights"
 
+@app.route("/generate-password")
+def generate_password():
+    return {"password": secrets.token_hex(8)}
+
+
 @app.route("/", methods=["GET","POST"])
 def fetch_home():
     error = None
