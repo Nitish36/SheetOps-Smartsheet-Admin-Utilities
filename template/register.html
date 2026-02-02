@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Register | SheetOps</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='reglog.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container">
+
+    <div class="register-box">
+      <h2>Create your account</h2>
+
+      <form method="POST" action="/">
+        <label for="fullname">Full Name</label>
+        <input type="text" id="fullname" name="fullname" placeholder="Enter full name" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Enter email" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter password" required>
+
+        <button type="submit">Register</button>
+
+        <span class="cta">
+          Already have an account?
+          <a href="/login">Login here</a>
+        </span>
+      </form>
+    </div>
+
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
+        <path d="M0,224 C240,160 480,288 720,240 960,192 1200,224 1440,160 L1440,320 L0,320 Z" fill="#1e3a8a"></path>
+        <path d="M0,200 C300,140 600,260 900,200 1200,160 1320,180 1440,150"
+              fill="none" stroke="#60a5fa" stroke-width="3" opacity="0.9" />
+      </svg>
+    </div>
+
+  </div>
+</body>
+</html>

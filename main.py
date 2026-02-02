@@ -38,6 +38,15 @@ def fetch_menu():
     error = None
     return render_template("menu.html")
 
+@app.route("/register", methods=["GET","POST"])
+def fetch_register():
+    error = None
+    return render_template("register.html")
+
+@app.route("/login", methods=["GET","POST"])
+def fetch_login():
+    error = None
+    return render_template("login.html")
 # Route to get group data
 @app.route("/groups", methods=["GET", "POST"])
 def fetch_groups():
