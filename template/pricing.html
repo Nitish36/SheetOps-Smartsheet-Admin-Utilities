@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pricing | SheetOps</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='price.css') }}">
+</head>
+<body>
+
+<div class="pricing-container">
+  <h1 class="pricing-title">Simple Pricing</h1>
+  <p class="pricing-subtitle">
+    Choose a plan that fits your Smartsheet admin needs.
+  </p>
+
+  <div class="pricing-cards">
+
+    <div class="pricing-card">
+      <h3>Basic</h3>
+      <p class="price">$0</p>
+      <ul>
+        <li>Groups & Users export</li>
+        <li>CSV format</li>
+        <li>Manual runs</li>
+      </ul>
+      <button class="btn-outline">Register</button>
+    </div>
+
+    <div class="pricing-card featured">
+      <h3>Pro</h3>
+      <p class="price">$15</p>
+      <ul>
+        <li>All admin endpoints</li>
+        <li>CSV + JSON</li>
+        <li>Pagination support</li>
+      </ul>
+      <button class="btn-primary">Contact Us</button>
+    </div>
+
+    <div class="pricing-card">
+      <h3>Enterprise</h3>
+      <p class="price">$40</p>
+      <ul>
+        <li>Full automation</li>
+        <li>Scheduled exports</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="btn-outline">Contact Us</button>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

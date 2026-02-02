@@ -55,6 +55,11 @@ label {
   color: #fff;
 }
 
+.help-text{
+    font-size: 0.6rem;
+    margin-bottom: 3px;
+}
+
 input[type="text"],
 input[type="email"],
 input[type="password"] {

@@ -10,6 +10,7 @@ from scripts.dashboard import get_dashboard
 from scripts.report import get_reports
 from scripts.groups import get_group_members,get_all_groups,build_group_dataframe
 from scripts.users import get_users
+from scripts.webhook import get_webhooks
 
 urllib3.disable_warnings()
 
@@ -201,7 +202,7 @@ def fetch_webhooks():
         if response.status_code != 200:
             return "Invalid API key or API error", 400
 
-        data = get_workspace(WEBHOOK_URL,headers)
+        data = get_webhooks(WEBHOOK_URL,headers)
         df = pd.DataFrame(data)
 
         # Create CSV in memory
@@ -283,6 +284,10 @@ def fetch_workspace():
 @app.route("/about", methods=["GET","POST"])
 def fetch_about():
     return render_template("about.html")
+
+@app.route("/pricing", methods=["GET","POST"])
+def fetch_pricing():
+    return render_template("pricing.html")
 
 
 if __name__ == "__main__":
