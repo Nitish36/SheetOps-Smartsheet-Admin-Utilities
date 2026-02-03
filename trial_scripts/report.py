@@ -1,11 +1,10 @@
 import requests
 import urllib3
-import pandas as pd
 import time
 
 urllib3.disable_warnings()
 
-def get_reports(url, headers):
+def get_trial_reports(url, headers):
     all_reports = []
     page = 1
     page_size = 50   # ✅ max allowed
@@ -29,7 +28,8 @@ def get_reports(url, headers):
 
         print(f"Fetched page {page} | Total sheets so far: {len(all_reports)}")
 
-        if 50 >= data.get("totalPages", 0):
+        if  len(all_reports)>=50:
+            all_reports=all_reports[:50]
             break
 
         page += 1

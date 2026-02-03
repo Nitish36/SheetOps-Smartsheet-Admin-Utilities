@@ -27,10 +27,10 @@ def safe_get(url, headers, params=None, retries=3, sleep_sec=2):
             else:
                 return None
 
-def get_all_groups(base_url, headers):
+def get_all_trial_groups(base_url, headers):
     all_groups = []
     page = 1
-    page_size = 200
+    page_size = 50
 
     while True:
         params = {"page": page, "pageSize": page_size}
@@ -49,12 +49,16 @@ def get_all_groups(base_url, headers):
 
         print(f"Fetched groups page {page} | Total: {len(all_groups)}")
 
+        if len(all_groups)>=50:
+            all_groups=all_groups[:50]
+            break
+
         page += 1
         time.sleep(1)
 
     return all_groups
 
-def get_group_members(base_url, headers, groups):
+def get_trial_group_members(base_url, headers, groups):
     rows = []
     skipped = []
 
@@ -63,7 +67,7 @@ def get_group_members(base_url, headers, groups):
         group_name = group["name"]
         owner = group.get("owner", "")
 
-        resp = safe_get(f"{base_url}/groups/{group_id}", headers)
+        resp = safe_get(f"{base_url}/{group_id}", headers)
 
         if not resp:
             skipped.append(group_name)
@@ -86,6 +90,6 @@ def get_group_members(base_url, headers, groups):
 
     return rows, skipped
 
-def build_group_dataframe(rows):
+def build_trial_group_dataframe(rows):
     df = pd.DataFrame(rows)
     return df

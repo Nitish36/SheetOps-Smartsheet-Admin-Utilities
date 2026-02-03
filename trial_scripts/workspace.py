@@ -1,12 +1,11 @@
 import requests
 import urllib3
-import pandas as pd
 import time
 
 urllib3.disable_warnings()
 
 
-def get_workspace(url, headers):
+def get_trial_workspace(url, headers):
     all_workspaces = []
     page = 1
     page_size = 50   # ✅ max allowed
@@ -30,7 +29,8 @@ def get_workspace(url, headers):
 
         print(f"Fetched page {page} | Total sheets so far: {len(all_workspaces)}")
 
-        if 50 >= data.get("totalPages", 0):
+        if len(all_workspaces) >= 50:
+            all_workspaces = all_workspaces[:50]
             break
 
         page += 1

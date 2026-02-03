@@ -3,10 +3,10 @@ import urllib3
 
 urllib3.disable_warnings()
 
-def get_users(url, headers):
+def get_trial_users(url, headers):
     all_users = []
     page = 1
-    page_size = 300  # max allowed by Smartsheet
+    page_size = 50  # max allowed by Smartsheet
 
     while True:
         params = {
@@ -25,7 +25,8 @@ def get_users(url, headers):
         print(f"✅ Fetched page {page} | Users: {len(users)}")
 
         # stop when last page is reached
-        if len(users) < page_size:
+        if len(users) >= 50:
+            all_users=all_users[:50]
             break
 
         page += 1

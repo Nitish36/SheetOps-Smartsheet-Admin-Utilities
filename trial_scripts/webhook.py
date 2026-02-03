@@ -1,11 +1,10 @@
 import requests
 import urllib3
-import pandas as pd
 import time
 
 urllib3.disable_warnings()
 
-def get_webhooks(url,headers):
+def get_trial_webhooks(url,headers):
     all_webhooks = []
     page = 1
     page_size = 50   # ✅ max allowed
@@ -29,7 +28,8 @@ def get_webhooks(url,headers):
 
         print(f"Fetched page {page} | Total sheets so far: {len(all_webhooks)}")
 
-        if 50 >= data.get("totalPages", 0):
+        if len(all_webhooks) >= 50:
+            all_webhooks = all_webhooks[:50]
             break
 
         page += 1

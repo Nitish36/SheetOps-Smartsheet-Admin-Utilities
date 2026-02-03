@@ -4,7 +4,7 @@ import time
 
 urllib3.disable_warnings()
 
-def get_dashboard(url, headers):
+def get_trial_dashboard(url, headers):
     all_dashboards = []
     page = 1
     page_size = 50   # ✅ max allowed
@@ -28,7 +28,8 @@ def get_dashboard(url, headers):
 
         print(f"Fetched page {page} | Total Dashboards so far: {len(all_dashboards)}")
 
-        if 50 >= data.get("totalPages", 0):
+        if len(all_dashboards) >= 50:
+            all_dashboards = all_dashboards[:50]
             break
 
         page += 1

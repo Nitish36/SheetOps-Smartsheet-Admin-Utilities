@@ -7,7 +7,7 @@ urllib3.disable_warnings()
 def get_sheets(url, headers):
     all_sheets = []
     page = 1
-    page_size = 100   # ✅ max allowed
+    page_size = 200   # ✅ max allowed
 
     while True:
         params = {

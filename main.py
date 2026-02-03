@@ -11,6 +11,13 @@ from scripts.report import get_reports
 from scripts.groups import get_group_members,get_all_groups,build_group_dataframe
 from scripts.users import get_users
 from scripts.webhook import get_webhooks
+from trial_scripts.sheets import get_trial_sheets
+from trial_scripts.report import get_trial_reports
+from trial_scripts.dashboard import get_trial_dashboard
+from trial_scripts.webhook import get_trial_webhooks
+from trial_scripts.workspace import get_trial_workspace
+from trial_scripts.users import get_trial_users
+from trial_scripts.groups import build_trial_group_dataframe,get_trial_group_members,get_all_trial_groups
 
 urllib3.disable_warnings()
 
@@ -67,11 +74,10 @@ def fetch_register():
 def fetch_login():
     error = None
     return render_template("login.html")
+
 # Route to get group data
 @app.route("/groups", methods=["GET", "POST"])
 def fetch_groups():
-    error = None
-
     if request.method == "POST":
         api_key = request.form.get("api_key")
 
@@ -80,19 +86,33 @@ def fetch_groups():
             "Content-Type": "application/json"
         }
 
+        # Validate API key
         response = requests.get(GROUPS_URL, headers=headers, verify=False)
-
         if response.status_code != 200:
             return "Invalid API key or API error", 400
 
-        groups = get_all_groups(GROUPS_URL, headers)
-        rows, skipped = get_group_members(GROUPS_URL, headers, groups)
-        df = build_group_dataframe(rows)
+        user_plan = session.get("user_plan", "trial")
 
-        # Convert to DataFrame
-        g_df = pd.DataFrame(df)
+        # ✅ SINGLE dataframe variable
+        g_df = pd.DataFrame()
 
-        # Create CSV in memory
+        if user_plan == "trial":
+            groups = get_all_trial_groups(GROUPS_URL, headers)
+            g_df = build_trial_group_dataframe(groups)
+            g_df = g_df.head(50)
+
+        elif user_plan == "pro":
+            groups = get_all_groups(GROUPS_URL, headers)
+            rows, skipped = get_group_members(GROUPS_URL, headers, groups)
+            g_df = build_group_dataframe(rows)
+
+        elif user_plan == "enterprise":
+            groups = get_all_groups(GROUPS_URL, headers)
+            rows, skipped = get_group_members(GROUPS_URL, headers, groups)
+            g_df = build_group_dataframe(rows)
+            # later you can enrich enterprise data here
+
+        # Create CSV
         output = BytesIO()
         g_df.to_csv(output, index=False)
         output.seek(0)
@@ -101,7 +121,7 @@ def fetch_groups():
             output,
             mimetype="text/csv",
             as_attachment=True,
-            download_name="smartsheet_groups.csv"
+            download_name=f"smartsheet_groups_{user_plan}.csv"
         )
 
     return render_template("group.html")
@@ -123,10 +143,21 @@ def fetch_users():
         if response.status_code != 200:
             return "Invalid API key or API error", 400
 
-        data = get_users(USERS_URL,headers)
-        df = pd.DataFrame(data)
+        user_plan = session.get("user_plan", "trial")
+        df = []
+        if user_plan == "trial":
+            data = get_trial_users(USERS_URL, headers)
+            df = pd.DataFrame(data)
+            df = df.head(50)
 
-        # Create CSV in memory
+        elif user_plan == "pro":
+            data = get_users(USERS_URL, headers)
+            df = pd.DataFrame(data)
+
+        elif user_plan == "enterprise":
+            pass  # full data (no limit)
+
+        # Create CSV
         output = BytesIO()
         df.to_csv(output, index=False)
         output.seek(0)
@@ -135,29 +166,44 @@ def fetch_users():
             output,
             mimetype="text/csv",
             as_attachment=True,
-            download_name="smartsheet_users.csv"
+            download_name=f"smartsheet_users_{user_plan}.csv"
         )
 
     return render_template("users.html")
 
-@app.route("/sheets", methods=["GET","POST"])
+@app.route("/sheets", methods=["GET", "POST"])
 def fetch_sheets():
-    error = None
     if request.method == "POST":
         api_key = request.form.get("api_key")
+
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
-        response = requests.get(SHEETS_URL, headers=headers, verify=False)
 
+        # Validate key
+        response = requests.get(SHEETS_URL, headers=headers, verify=False)
         if response.status_code != 200:
             return "Invalid API key or API error", 400
 
-        data = get_sheets(SHEETS_URL,headers)
-        df = pd.DataFrame(data)
+        # Fetch ALL sheets (same function)
 
-        # Create CSV in memory
+        # 👇 PLAN-BASED LIMITING
+        user_plan = session.get("user_plan", "trial")
+        df = []
+        if user_plan == "trial":
+            data = get_trial_sheets(SHEETS_URL,headers)
+            df = pd.DataFrame(data)
+            df = df.head(50)
+
+        elif user_plan == "pro":
+            data = get_sheets(SHEETS_URL, headers)
+            df = pd.DataFrame(data)
+
+        elif user_plan == "enterprise":
+            pass  # full data (no limit)
+
+        # Create CSV
         output = BytesIO()
         df.to_csv(output, index=False)
         output.seek(0)
@@ -166,10 +212,11 @@ def fetch_sheets():
             output,
             mimetype="text/csv",
             as_attachment=True,
-            download_name="smartsheet_sheets.csv"
+            download_name=f"smartsheet_sheets_{user_plan}.csv"
         )
 
     return render_template("sheets.html")
+
 
 @app.route("/reports", methods=["GET","POST"])
 def fetch_reports():
@@ -185,10 +232,21 @@ def fetch_reports():
         if response.status_code != 200:
             return "Invalid API key or API error", 400
 
-        data = get_reports(REPORTS_URL,headers)
-        df = pd.DataFrame(data)
+        user_plan = session.get("user_plan", "trial")
+        df = []
+        if user_plan == "trial":
+            data = get_trial_reports(REPORTS_URL, headers)
+            df = pd.DataFrame(data)
+            df = df.head(50)
 
-        # Create CSV in memory
+        elif user_plan == "pro":
+            data = get_reports(REPORTS_URL, headers)
+            df = pd.DataFrame(data)
+
+        elif user_plan == "enterprise":
+            pass  # full data (no limit)
+
+        # Create CSV
         output = BytesIO()
         df.to_csv(output, index=False)
         output.seek(0)
@@ -197,7 +255,7 @@ def fetch_reports():
             output,
             mimetype="text/csv",
             as_attachment=True,
-            download_name="smartsheet_report.csv"
+            download_name=f"smartsheet_report_{user_plan}.csv"
         )
 
     return render_template("reports.html")
@@ -216,10 +274,21 @@ def fetch_webhooks():
         if response.status_code != 200:
             return "Invalid API key or API error", 400
 
-        data = get_webhooks(WEBHOOK_URL,headers)
-        df = pd.DataFrame(data)
+        user_plan = session.get("user_plan", "trial")
+        df = []
+        if user_plan == "trial":
+            data = get_trial_webhooks(WEBHOOK_URL, headers)
+            df = pd.DataFrame(data)
+            df = df.head(50)
 
-        # Create CSV in memory
+        elif user_plan == "pro":
+            data = get_webhooks(WEBHOOK_URL, headers)
+            df = pd.DataFrame(data)
+
+        elif user_plan == "enterprise":
+            pass  # full data (no limit)
+
+        # Create CSV
         output = BytesIO()
         df.to_csv(output, index=False)
         output.seek(0)
@@ -228,7 +297,7 @@ def fetch_webhooks():
             output,
             mimetype="text/csv",
             as_attachment=True,
-            download_name="smartsheet_webhook.csv"
+            download_name=f"smartsheet_webhook_{user_plan}.csv"
         )
 
     return render_template("webhook.html")
@@ -247,10 +316,21 @@ def fetch_dashboards():
         if response.status_code != 200:
             return "Invalid API key or API error", 400
 
-        data = get_dashboard(DASHBOARD_URL,headers)
-        df = pd.DataFrame(data)
+        user_plan = session.get("user_plan", "trial")
+        df = []
+        if user_plan == "trial":
+            data = get_trial_dashboard(DASHBOARD_URL, headers)
+            df = pd.DataFrame(data)
+            df = df.head(50)
 
-        # Create CSV in memory
+        elif user_plan == "pro":
+            data = get_dashboard(DASHBOARD_URL, headers)
+            df = pd.DataFrame(data)
+
+        elif user_plan == "enterprise":
+            pass  # full data (no limit)
+
+        # Create CSV
         output = BytesIO()
         df.to_csv(output, index=False)
         output.seek(0)
@@ -259,7 +339,7 @@ def fetch_dashboards():
             output,
             mimetype="text/csv",
             as_attachment=True,
-            download_name="smartsheet_dashboard.csv"
+            download_name=f"smartsheet_dashboard_{user_plan}.csv"
         )
 
     return render_template("dashboard.html")
@@ -278,10 +358,21 @@ def fetch_workspace():
         if response.status_code != 200:
             return "Invalid API key or API error", 400
 
-        data = get_workspace(WORKSPACE_URL,headers)
-        df = pd.DataFrame(data)
+        user_plan = session.get("user_plan", "trial")
+        df = []
+        if user_plan == "trial":
+            data = get_trial_workspace(WORKSPACE_URL, headers)
+            df = pd.DataFrame(data)
+            df = df.head(50)
 
-        # Create CSV in memory
+        elif user_plan == "pro":
+            data = get_workspace(WORKSPACE_URL, headers)
+            df = pd.DataFrame(data)
+
+        elif user_plan == "enterprise":
+            pass  # full data (no limit)
+
+        # Create CSV
         output = BytesIO()
         df.to_csv(output, index=False)
         output.seek(0)
@@ -290,7 +381,7 @@ def fetch_workspace():
             output,
             mimetype="text/csv",
             as_attachment=True,
-            download_name="smartsheet_workspace.csv"
+            download_name=f"smartsheet_workspace_{user_plan}.csv"
         )
 
     return render_template("workspace.html")
@@ -305,7 +396,7 @@ def fetch_pricing():
 
 @app.route("/select-plan", methods=["POST"])
 def select_plan():
-    selected_plan = request.form.get("plan")
+    selected_plan = request.form.get("plan", "trial")
 
     # store plan in session
     session["user_plan"] = selected_plan
