@@ -92,6 +92,11 @@
   color: #5b7cff;
 }
 
+.btn-outline:hover{
+  background: #5b7cff;
+  color: #fff;
+}
+
 .back-btn {
   position: absolute;
   top: 20px;

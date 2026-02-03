@@ -1,17 +1,19 @@
-PLANS = {
+# config/tiers.py
+
+TIER_CONFIG = {
     "trial": {
         "max_rows": 50,
-        "deep_scrape": False,
-        "script_path": "trial"
+        "allow_deep_scrape": False,
+        "script_folder": "trial_scripts"
     },
     "paid": {
         "max_rows": None,
-        "deep_scrape": False,
-        "script_path": "full"
+        "allow_deep_scrape": False,
+        "script_folder": "scripts"
     },
     "enterprise": {
         "max_rows": None,
-        "deep_scrape": True,
-        "script_path": "enterprise"
+        "allow_deep_scrape": True,
+        "script_folder": "enterprise_scripts"
     }
 }
