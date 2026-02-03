@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, send_file
+from flask import Flask, request, render_template, send_file, session, redirect
 import requests
 import pandas as pd
 from io import BytesIO
@@ -46,7 +46,21 @@ def fetch_menu():
 
 @app.route("/register", methods=["GET","POST"])
 def fetch_register():
-    error = None
+    if request.method == "POST":
+        fullname = request.form.get("fullname")
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        # tier comes from session
+        user_plan = session.get("user_plan", "trial")
+
+        print("User Registered")
+        print("Name:", fullname)
+        print("Email:", email)
+        print("Plan:", user_plan)
+
+        # later → DB save
+        return redirect("/login")
     return render_template("register.html")
 
 @app.route("/login", methods=["GET","POST"])
@@ -288,6 +302,16 @@ def fetch_about():
 @app.route("/pricing", methods=["GET","POST"])
 def fetch_pricing():
     return render_template("pricing.html")
+
+@app.route("/select-plan", methods=["POST"])
+def select_plan():
+    selected_plan = request.form.get("plan")
+
+    # store plan in session
+    session["user_plan"] = selected_plan
+
+    return redirect("/register")
+
 
 
 if __name__ == "__main__":

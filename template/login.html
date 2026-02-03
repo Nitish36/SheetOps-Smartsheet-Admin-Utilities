@@ -13,7 +13,10 @@
     <a href="/" class="back-btn">← Back</a>
 
   <div class="container">
-
+    <p class="plan">
+      Selected Plan:
+      <strong>{{ session.get("user_plan", "trial") | capitalize }}</strong>
+    </p>
     <div class="login-box">
       <h2>Welcome back</h2>
 

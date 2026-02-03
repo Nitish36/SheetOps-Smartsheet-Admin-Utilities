@@ -12,11 +12,14 @@
 <body>
     <a href="/" class="back-btn">← Back</a>
   <div class="container">
-
+    <p class="plan">
+      Selected Plan:
+      <strong>{{ session.get("user_plan", "trial") | capitalize }}</strong>
+    </p>
     <div class="register-box">
       <h2>Create your account</h2>
 
-      <form method="POST" action="/">
+      <form method="POST" action="/register">
         <label for="fullname">Full Name</label>
         <input type="text" id="fullname" name="fullname" placeholder="Enter full name" required>
 
@@ -31,6 +34,7 @@
                 id="password"
                 name="password"
                 placeholder="Enter or generate password"
+                required
             />
             <button type="button" class="eye-btn" onclick="togglePassword()">
             👁️
