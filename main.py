@@ -17,7 +17,7 @@ from trial_scripts.dashboard import get_trial_dashboard
 from trial_scripts.webhook import get_trial_webhooks
 from trial_scripts.workspace import get_trial_workspace
 from trial_scripts.users import get_trial_users
-from trial_scripts.groups import build_trial_group_dataframe,get_trial_group_members,get_all_trial_groups
+from trial_scripts.groups import build_trial_group_dataframe,get_all_trial_groups
 
 urllib3.disable_warnings()
 
@@ -35,6 +35,21 @@ REPORTS_URL = "https://api.smartsheet.com/2.0/reports"
 WORKSPACE_URL = "https://api.smartsheet.com/2.0/workspaces"
 WEBHOOK_URL = "https://api.smartsheet.com/2.0/webhooks"
 DASHBOARD_URL = "https://api.smartsheet.com/2.0/sights"
+
+def init_progress():
+    session["progress"] = []
+
+def update_progress(message):
+    progress = session.get("progress", [])
+    progress.append(message)
+    session["progress"] = progress
+
+@app.route("/progress")
+def get_progress():
+    return {
+        "messages": session.get("progress", [])
+    }
+
 
 @app.route("/generate-password")
 def generate_password():
@@ -86,6 +101,7 @@ def fetch_groups():
             "Content-Type": "application/json"
         }
 
+
         # Validate API key
         response = requests.get(GROUPS_URL, headers=headers, verify=False)
         if response.status_code != 200:
@@ -95,7 +111,8 @@ def fetch_groups():
 
         # ✅ SINGLE dataframe variable
         g_df = pd.DataFrame()
-
+        init_progress()
+        update_progress("Starting Groups extraction")
         if user_plan == "trial":
             groups = get_all_trial_groups(GROUPS_URL, headers)
             g_df = build_trial_group_dataframe(groups)
@@ -158,10 +175,12 @@ def fetch_users():
             pass  # full data (no limit)
 
         # Create CSV
+        update_progress("Preparing CSV file")
         output = BytesIO()
         df.to_csv(output, index=False)
         output.seek(0)
-
+        update_progress("CSV ready for download")
+        update_progress("Download started")
         return send_file(
             output,
             mimetype="text/csv",

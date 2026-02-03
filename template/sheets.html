@@ -26,7 +26,7 @@
                 Generate a CSV of Smartsheet Sheets metadata using your API key.
             </p>
 
-            <form method="POST">
+            <form method="POST" onsubmit="startPolling()"">
                 <label>Smartsheet API Key</label>
                 <input
                     type="password"
@@ -40,6 +40,10 @@
                 </button>
                 <div id="snackbar">API Key Submitted</div>
             </form>
+            <div id="progress-box" class="progress-box" style="display:none;">
+                <h4>Progress</h4>
+                <ul id="progress-list"></ul>
+            </div>
 
             {% if error %}
                 <p class="error">{{ error }}</p>
@@ -47,5 +51,35 @@
         </div>
     </main>
 
+<script>
+let pollingInterval = null;
+
+function startPolling() {
+  const box = document.getElementById("progress-box");
+  const list = document.getElementById("progress-list");
+
+  box.style.display = "block";
+  list.innerHTML = "";
+
+  pollingInterval = setInterval(() => {
+    fetch("/progress")
+      .then(res => res.json())
+      .then(data => {
+        list.innerHTML = "";
+        data.messages.forEach(msg => {
+          const li = document.createElement("li");
+          li.textContent = "• " + msg;
+          list.appendChild(li);
+        });
+      });
+  }, 1500);
+}
+
+function stopPolling() {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+  }
+}
+</script>
 </body>
 </html>

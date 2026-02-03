@@ -152,3 +152,29 @@ input[type=password] {
   from {bottom: 30px; opacity: 1;}
   to {bottom: 0; opacity: 0;}
 }
+
+.progress-box {
+  margin-top: 20px;
+  padding: 12px;
+  border: 1px solid #334155;
+  background-color: #020617;
+  color: #e5e7eb;
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 0.85rem;
+}
+
+.progress-box h4 {
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+  color: #60a5fa;
+}
+
+#progress-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+#progress-list li {
+  margin-bottom: 4px;
+}
