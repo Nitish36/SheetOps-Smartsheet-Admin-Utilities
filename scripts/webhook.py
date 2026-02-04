@@ -2,14 +2,19 @@ import requests
 import urllib3
 import pandas as pd
 import time
-
+from flask import session
 urllib3.disable_warnings()
+
+def update_progress(message):
+    progress = session.get("progress", [])
+    progress.append(message)
+    session["progress"] = progress
 
 def get_webhooks(url,headers):
     all_webhooks = []
     page = 1
     page_size = 200   # ✅ max allowed
-
+    update_progress("Fetching webhooks (trial mode)")
     while True:
         params = {
             "page": page,
@@ -23,6 +28,7 @@ def get_webhooks(url,headers):
         batch = data.get("data", [])
 
         if not batch:
+            update_progress("No more data returned from API")
             break
 
         all_webhooks.extend(batch)
@@ -34,4 +40,6 @@ def get_webhooks(url,headers):
 
         page += 1
         time.sleep(1)  # ⏱ polite to API
-        return all_webhooks
+    update_progress("Webhooks extraction completed")
+    update_progress("✅ Export completed")
+    return all_webhooks

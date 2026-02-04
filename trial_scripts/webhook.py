@@ -42,7 +42,7 @@ def get_trial_webhooks(url,headers):
 
         page += 1
         time.sleep(1)  # ⏱ polite to API
-    update_progress("Sheets extraction completed")
+    update_progress("Webhooks extraction completed")
     update_progress("✅ Export completed")
 
     return all_webhooks

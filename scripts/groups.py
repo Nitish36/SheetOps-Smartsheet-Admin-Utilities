@@ -2,8 +2,13 @@ import requests
 import urllib3
 import pandas as pd
 import time
-
+from flask import session
 urllib3.disable_warnings()
+
+def update_progress(message):
+    progress = session.get("progress", [])
+    progress.append(message)
+    session["progress"] = progress
 
 # -------------------------------------------------
 # Paginated fetch (groups only)
@@ -31,8 +36,9 @@ def get_all_groups(base_url, headers):
     all_groups = []
     page = 1
     page_size = 200
-
+    update_progress("Fetching Groups (pro/enterprise mode)")
     while True:
+        update_progress(f"Requesting page {page}")
         params = {"page": page, "pageSize": page_size}
         resp = safe_get(f"{base_url}", headers, params)
 
@@ -51,6 +57,8 @@ def get_all_groups(base_url, headers):
 
         page += 1
         time.sleep(1)
+    update_progress("Groups extraction completed")
+    update_progress("✅ Export completed")
 
     return all_groups
 

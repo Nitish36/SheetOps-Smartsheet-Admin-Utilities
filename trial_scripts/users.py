@@ -39,7 +39,7 @@ def get_trial_users(url, headers):
             break
 
         page += 1
-    update_progress("Sheets extraction completed")
+    update_progress("Users extraction completed")
     update_progress("✅ Export completed")
 
     return all_users

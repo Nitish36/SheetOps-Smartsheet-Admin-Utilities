@@ -2,14 +2,20 @@ import requests
 import urllib3
 import pandas as pd
 import time
-
+from flask import session
 urllib3.disable_warnings()
+
+def update_progress(message):
+    progress = session.get("progress", [])
+    progress.append(message)
+    session["progress"] = progress
+
 
 def get_reports(url, headers):
     all_reports = []
     page = 1
     page_size = 100   # ✅ max allowed
-
+    update_progress("Fetching Reports (pro/enterprise mode)")
     while True:
         params = {
             "page": page,
@@ -23,9 +29,11 @@ def get_reports(url, headers):
         batch = data.get("data", [])
 
         if not batch:
+            update_progress("No more data returned from API")
             break
 
         all_reports.extend(batch)
+        update_progress(f"Fetched {len(all_reports)} sheets so far")
 
         print(f"Fetched page {page} | Total sheets so far: {len(all_reports)}")
 
@@ -34,4 +42,6 @@ def get_reports(url, headers):
 
         page += 1
         time.sleep(1)  # ⏱ polite to API
-        return all_reports
+    update_progress("Reports extraction completed")
+    update_progress("✅ Export completed")
+    return all_reports

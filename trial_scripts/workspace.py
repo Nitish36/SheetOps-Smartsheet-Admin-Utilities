@@ -13,7 +13,7 @@ def get_trial_workspace(url, headers):
     all_workspaces = []
     page = 1
     page_size = 50   # ✅ max allowed
-    update_progress("Fetching sheets (trial mode)")
+    update_progress("Fetching workspaces (trial mode)")
     while True:
         params = {
             "page": page,
@@ -43,7 +43,7 @@ def get_trial_workspace(url, headers):
         page += 1
         time.sleep(1)  # ⏱ polite to API
 
-    update_progress("Sheets extraction completed")
+    update_progress("Workspace extraction completed")
     update_progress("✅ Export completed")
 
     return all_workspaces
