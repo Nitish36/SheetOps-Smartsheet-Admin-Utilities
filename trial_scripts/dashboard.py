@@ -1,15 +1,21 @@
 import requests
 import urllib3
 import time
-
+from flask import session
 urllib3.disable_warnings()
+
+def update_progress(message):
+    progress = session.get("progress", [])
+    progress.append(message)
+    session["progress"] = progress
 
 def get_trial_dashboard(url, headers):
     all_dashboards = []
     page = 1
     page_size = 50   # ✅ max allowed
-
+    update_progress("Fetching sheets (trial mode)")
     while True:
+        update_progress(f"Requesting page {page}")
         params = {
             "page": page,
             "pageSize": page_size
@@ -22,16 +28,22 @@ def get_trial_dashboard(url, headers):
         batch = data.get("data", [])
 
         if not batch:
+            update_progress("No more data returned from API")
             break
 
         all_dashboards.extend(batch)
+        update_progress(f"Fetched {len(all_dashboards)} sheets so far")
 
         print(f"Fetched page {page} | Total Dashboards so far: {len(all_dashboards)}")
 
         if len(all_dashboards) >= 50:
+            update_progress("Trial limit reached (50 rows)")
             all_dashboards = all_dashboards[:50]
             break
 
         page += 1
         time.sleep(1)  # ⏱ polite to API
-        return all_dashboards
+    update_progress("Sheets extraction completed")
+    update_progress("✅ Export completed")
+
+    return all_dashboards

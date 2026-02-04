@@ -2,8 +2,13 @@ import requests
 import urllib3
 import pandas as pd
 import time
-
+from flask import session
 urllib3.disable_warnings()
+
+def update_progress(message):
+    progress = session.get("progress", [])
+    progress.append(message)
+    session["progress"] = progress
 
 # -------------------------------------------------
 # Paginated fetch (groups only)
@@ -31,8 +36,9 @@ def get_all_trial_groups(base_url, headers):
     all_groups = []
     page = 1
     page_size = 50
-
+    update_progress("Fetching Groups (trial mode)")
     while True:
+        update_progress(f"Requesting page {page}")
         params = {"page": page, "pageSize": page_size}
         resp = safe_get(f"{base_url}", headers, params)
 
@@ -43,18 +49,23 @@ def get_all_trial_groups(base_url, headers):
         batch = data.get("data", [])
 
         if not batch:
+            update_progress("No more data returned from API")
             break
 
         all_groups.extend(batch)
+        update_progress(f"Fetched {len(all_groups)} sheets so far")
 
         print(f"Fetched groups page {page} | Total: {len(all_groups)}")
 
         if len(all_groups)>=50:
+            update_progress("Trial limit reached (50 rows)")
             all_groups=all_groups[:50]
             break
 
         page += 1
         time.sleep(1)
+    update_progress("Groups extraction completed")
+    update_progress("✅ Export completed")
 
     return all_groups
 
