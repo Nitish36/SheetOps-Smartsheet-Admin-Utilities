@@ -4,6 +4,8 @@ import pandas as pd
 from io import BytesIO
 import urllib3
 import secrets
+
+from auth.security import login_required
 from scripts.workspace import get_workspace
 from scripts.sheets import get_sheets
 from scripts.dashboard import get_dashboard
@@ -18,6 +20,7 @@ from trial_scripts.webhook import get_trial_webhooks
 from trial_scripts.workspace import get_trial_workspace
 from trial_scripts.users import get_trial_users
 from trial_scripts.groups import build_trial_group_dataframe,get_all_trial_groups
+from auth.auth_routes import auth_bp
 
 urllib3.disable_warnings()
 
@@ -26,7 +29,9 @@ def secret_key():
     return token
 
 app = Flask(__name__, template_folder='template')
-app.config['SECRET_KEY'] = secret_key()
+app.config['SECRET_KEY'] = "sheetops-super-secret-key"
+
+app.register_blueprint(auth_bp)
 
 GROUPS_URL = "https://api.smartsheet.com/2.0/groups"
 USERS_URL = "https://api.smartsheet.com/2.0/users"
@@ -62,36 +67,14 @@ def fetch_home():
     return render_template("index.html")
 
 @app.route("/menu", methods=["GET","POST"])
+@login_required
 def fetch_menu():
     error = None
     return render_template("menu.html")
 
-@app.route("/register", methods=["GET","POST"])
-def fetch_register():
-    if request.method == "POST":
-        fullname = request.form.get("fullname")
-        email = request.form.get("email")
-        password = request.form.get("password")
-
-        # tier comes from session
-        user_plan = session.get("user_plan", "trial")
-
-        print("User Registered")
-        print("Name:", fullname)
-        print("Email:", email)
-        print("Plan:", user_plan)
-
-        # later → DB save
-        return redirect("/login")
-    return render_template("register.html")
-
-@app.route("/login", methods=["GET","POST"])
-def fetch_login():
-    error = None
-    return render_template("login.html")
-
 # Route to get group data
 @app.route("/groups", methods=["GET", "POST"])
+@login_required
 def fetch_groups():
     if request.method == "POST":
         api_key = request.form.get("api_key")
@@ -145,6 +128,7 @@ def fetch_groups():
 
 # Route to get user data
 @app.route("/users", methods = ["GET","POST"])
+@login_required
 def fetch_users():
     error = None
 
@@ -191,6 +175,7 @@ def fetch_users():
     return render_template("users.html")
 
 @app.route("/sheets", methods=["GET", "POST"])
+@login_required
 def fetch_sheets():
     if request.method == "POST":
         api_key = request.form.get("api_key")
@@ -238,6 +223,7 @@ def fetch_sheets():
 
 
 @app.route("/reports", methods=["GET","POST"])
+@login_required
 def fetch_reports():
     error = None
     if request.method == "POST":
@@ -280,6 +266,7 @@ def fetch_reports():
     return render_template("reports.html")
 
 @app.route("/webhooks", methods=["GET","POST"])
+@login_required
 def fetch_webhooks():
     error = None
     if request.method == "POST":
@@ -322,6 +309,7 @@ def fetch_webhooks():
     return render_template("webhook.html")
 
 @app.route("/dashboards", methods=["GET","POST"])
+@login_required
 def fetch_dashboards():
     error = None
     if request.method == "POST":
@@ -364,6 +352,7 @@ def fetch_dashboards():
     return render_template("dashboard.html")
 
 @app.route("/workspaces", methods=["GET","POST"])
+@login_required
 def fetch_workspace():
     error = None
     if request.method == "POST":
@@ -422,7 +411,43 @@ def select_plan():
 
     return redirect("/register")
 
+"""
+@auth_bp.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
+
+"""
 
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
+
+"""
+@app.route("/register", methods=["GET","POST"])
+def fetch_register():
+    if request.method == "POST":
+        fullname = request.form.get("fullname")
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        # tier comes from session
+        user_plan = session.get("user_plan", "trial")
+
+        print("User Registered")
+        print("Name:", fullname)
+        print("Email:", email)
+        print("Plan:", user_plan)
+
+        # later → DB save
+        return redirect("/login")
+    return render_template("register.html")
+
+@app.route("/login", methods=["GET","POST"])
+def fetch_login():
+    error = None
+    return render_template("login.html")
+"""
