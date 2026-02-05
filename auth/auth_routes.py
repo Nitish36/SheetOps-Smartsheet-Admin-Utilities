@@ -108,13 +108,15 @@ def login():
         db.commit()
 
         # 6️⃣ Session setup
+        """
         session.clear()
         session["user_id"] = user.id
         session["user_email"] = user.email
         session["user_plan"] = user_plan
-
+        """
         db.close()
 
         return redirect("/menu")
 
     return render_template("login.html")
+
