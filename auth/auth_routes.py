@@ -108,12 +108,14 @@ def login():
         db.commit()
 
         # 6️⃣ Session setup
-        """
+
         session.clear()
         session["user_id"] = user.id
         session["user_email"] = user.email
         session["user_plan"] = user_plan
-        """
+        print(session["user_id"])
+        print(session["user_email"])
+        print(session["user_plan"])
         db.close()
 
         return redirect("/menu")
@@ -127,5 +129,4 @@ def logout():
     """
     session.clear()  # removes user_id, user_email, user_plan, etc.
     flash("You have been logged out successfully.", "info")
-
     return redirect(url_for("auth.login"))  # redirect to login page
