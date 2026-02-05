@@ -1,7 +1,7 @@
 document.getElementById("loginForm").addEventListener("submit", function (event) {
   event.preventDefault();
 
-  const username = document.getElementById("username").value.trim();
+  const username = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
 
   const usernameError = document.getElementById("usernameError");
@@ -40,4 +40,5 @@ window.addEventListener("DOMContentLoaded", (event) => {
     }, 4000); // 4000ms = 4 seconds
   });
 });
+
 
