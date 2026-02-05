@@ -38,10 +38,11 @@ def register():
         db.commit()
         db.refresh(user)
 
+        selected_plan = session.get("user_plan", "trial")
         # 4️⃣ Create trial subscription
         subscription = Subscription(
             user_id=user.id,
-            plan_type="trial",
+            plan_type=selected_plan,
             is_trial_active=True
         )
         db.add(subscription)
@@ -50,7 +51,7 @@ def register():
         # 5️⃣ Session setup
         session["user_id"] = user.id
         session["user_email"] = user.email
-        session["user_plan"] = "trial"
+        session["user_plan"] = selected_plan
 
         db.close()
 
