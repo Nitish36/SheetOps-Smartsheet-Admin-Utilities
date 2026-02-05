@@ -27,3 +27,17 @@ document.getElementById("loginForm").addEventListener("submit", function (event)
     this.submit();
   }
 });
+
+
+// Auto-hide flash messages after 4 seconds
+window.addEventListener("DOMContentLoaded", (event) => {
+  const flashMessages = document.querySelectorAll(".flash-message");
+  flashMessages.forEach(msg => {
+    setTimeout(() => {
+      msg.style.transition = "opacity 0.5s ease-out";
+      msg.style.opacity = "0";
+      setTimeout(() => msg.remove(), 500);
+    }, 4000); // 4000ms = 4 seconds
+  });
+});
+

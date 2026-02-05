@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, session
+from flask import Blueprint, render_template, request, redirect, session, flash, url_for
 
 from sqlalchemy.orm import Session
 from database import SessionLocal
@@ -108,15 +108,23 @@ def login():
         db.commit()
 
         # 6️⃣ Session setup
-        """
+
         session.clear()
         session["user_id"] = user.id
         session["user_email"] = user.email
         session["user_plan"] = user_plan
-        """
+
         db.close()
 
         return redirect("/menu")
 
     return render_template("login.html")
 
+@auth_bp.route("/logout")
+def logout():
+    """
+    Clears the current user session and redirects to login page.
+    """
+    session.clear()  # removes user_id, user_email, user_plan, etc.
+    flash("You have been logged out successfully.", "info")
+    return redirect(url_for("auth.login"))  # redirect to login page

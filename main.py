@@ -4,6 +4,7 @@ import pandas as pd
 from io import BytesIO
 import urllib3
 import secrets
+import os
 
 from auth.security import login_required
 from scripts.workspace import get_workspace
@@ -29,7 +30,7 @@ def secret_key():
     return token
 
 app = Flask(__name__, template_folder='template')
-app.config['SECRET_KEY'] = "sheetops-super-secret-key"
+app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY", "sheetops-default-key")
 
 app.register_blueprint(auth_bp)
 
@@ -411,43 +412,6 @@ def select_plan():
 
     return redirect("/register")
 
-"""
-@auth_bp.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/login")
-
-"""
-
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
-
-"""
-@app.route("/register", methods=["GET","POST"])
-def fetch_register():
-    if request.method == "POST":
-        fullname = request.form.get("fullname")
-        email = request.form.get("email")
-        password = request.form.get("password")
-
-        # tier comes from session
-        user_plan = session.get("user_plan", "trial")
-
-        print("User Registered")
-        print("Name:", fullname)
-        print("Email:", email)
-        print("Plan:", user_plan)
-
-        # later → DB save
-        return redirect("/login")
-    return render_template("register.html")
-
-@app.route("/login", methods=["GET","POST"])
-def fetch_login():
-    error = None
-    return render_template("login.html")
-"""
