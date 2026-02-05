@@ -97,7 +97,13 @@ def login():
         user_plan = subscription.plan_type
 
         if user_plan == "trial":
-            if subscription.trial_end < datetime.now(timezone.utc):
+            trial_end = subscription.trial_end
+
+            # Make trial_end timezone-aware if it is naive
+            if trial_end and trial_end.tzinfo is None:
+                trial_end = trial_end.replace(tzinfo=timezone.utc)
+
+            if trial_end and trial_end < datetime.now(timezone.utc):
                 subscription.is_trial_active = False
                 db.commit()
                 db.close()
