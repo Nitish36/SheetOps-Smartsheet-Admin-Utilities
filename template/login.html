@@ -13,22 +13,22 @@
     <a href="/" class="back-btn">← Back</a>
 
   <div class="container">
+    
     {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-      <div class="flash-message {{ category }}">
-        {{ message }}
-      </div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+    {% endwith %}
     <p class="plan">
       Selected Plan:
       <strong>{{ session.get("user_plan", "trial") | capitalize }}</strong>
     </p>
     <div class="login-box">
       <h2>Welcome back</h2>
-
       <form id="loginForm" method="POST" action="/login">
         <label for="username">Email</label>
         <input type="text" id="email" name="email" placeholder="Enter email">

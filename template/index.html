@@ -25,9 +25,11 @@
         <a href="/">Home</a>
         <a href="/about">About</a>
         <a href="/pricing">Pricing</a>
-        <a href="/register">Register</a>
-        <a href="/login">Login</a>
+        {% if session.get("user_id") %}
         <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">Logout</a>
+        {% else %}
+        <a href="/login">Login</a>
+        {% endif %}
     </nav>
 </header>
 
