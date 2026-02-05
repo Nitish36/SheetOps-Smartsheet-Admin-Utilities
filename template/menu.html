@@ -9,7 +9,17 @@
 </head>
 
 <body>
-
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-container">
+      {% for category, message in messages %}
+        <div class="flash-message {{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
   <div class="menu-container">
     <h3 class="menu-title">SheetOps Reference</h3>
 
@@ -54,6 +64,15 @@
     
 
   </div>
-
+<script>
+  setTimeout(function() {
+    let flashes = document.getElementsByClassName('flash-message');
+    for (let f of flashes) {
+      f.style.transition = "opacity 0.5s ease";
+      f.style.opacity = "0";
+      setTimeout(() => f.remove(), 500);
+    }
+  }, 3000); // 3 seconds
+</script>
 </body>
 </html>

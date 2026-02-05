@@ -1,3 +1,2 @@
 Yet to add
-Flash Message
-And Based on the pricing selected it should store the same in the db
+Password not matching with the one in the db while loggin taking all the random pwd

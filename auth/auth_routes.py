@@ -52,7 +52,7 @@ def register():
         session["user_id"] = user.id
         session["user_email"] = user.email
         session["user_plan"] = selected_plan
-
+        flash("Account created successfully! Welcome to SheetOps.", "success")
         db.close()
 
         # 6️⃣ Redirect into app
@@ -83,7 +83,7 @@ def login():
         # 2️⃣ Verify password
         if not verify_password(password, user.password_hash):
             db.close()
-            return "Invalid email or password", 401
+            flash("Invalid email or password", "danger")
 
         # 3️⃣ Fetch subscription
         subscription = db.query(Subscription).filter(
@@ -120,9 +120,7 @@ def login():
         session["user_id"] = user.id
         session["user_email"] = user.email
         session["user_plan"] = user_plan
-        print(session["user_id"])
-        print(session["user_email"])
-        print(session["user_plan"])
+        flash("Logged in successfully!", "success")
         db.close()
 
         return redirect("/menu")
