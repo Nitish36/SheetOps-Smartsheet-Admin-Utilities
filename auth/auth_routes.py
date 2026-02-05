@@ -67,7 +67,7 @@ def login():
         password = request.form.get("password")
 
         if not email or not password:
-            return "Email and password are required", 400
+            flash("Email and password are required", "danger")
 
         db: Session = SessionLocal()
 
@@ -76,14 +76,11 @@ def login():
             User.email == email.lower().strip()
         ).first()
 
-        if not user:
-            db.close()
-            return "Invalid email or password", 401
-
-        # 2️⃣ Verify password
-        if not verify_password(password, user.password_hash):
+        if not user or not verify_password(password, user.password_hash):
             db.close()
             flash("Invalid email or password", "danger")
+            return render_template("login.html")
+
 
         # 3️⃣ Fetch subscription
         subscription = db.query(Subscription).filter(
