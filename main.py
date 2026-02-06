@@ -1,11 +1,14 @@
-from flask import Flask, request, render_template, send_file, session, redirect
+from flask import Flask, request, render_template, send_file, session, redirect, flash
 import requests
 import pandas as pd
 from io import BytesIO
 import urllib3
 import secrets
 import os
-
+from datetime import datetime
+from database import SessionLocal
+from models.user import User
+from models.subscription import Subscription
 from auth.security import login_required
 from scripts.workspace import get_workspace
 from scripts.sheets import get_sheets
@@ -411,6 +414,108 @@ def select_plan():
     session["user_plan"] = selected_plan
 
     return redirect("/register")
+
+# Admin's view
+@app.route("/admin/users")
+@login_required
+def admin_user_list():
+    # 1. SECURITY CHECK: Only allow your specific email
+    admin_email = "nitish.pkv@gmail.com"  # <--- YOUR ACTUAL EMAIL HERE
+
+    if session.get("user_email") != admin_email:
+        flash("Access Denied: You do not have administrator privileges.", "danger")
+        return redirect("/menu")
+
+    # 2. Fetch all users from the database
+    db = SessionLocal()
+    results = db.query(User, Subscription).join(
+        Subscription, User.id == Subscription.user_id
+    ).all()
+    db.close()
+
+    return render_template("admin_users.html", results=results)
+
+
+# --- ADMIN UPDATE PLAN ---
+@app.route("/admin/update-plan/<int:user_id>", methods=["POST"])
+@login_required
+def admin_update_plan(user_id):
+    if session.get("user_email") != "your-email@example.com":
+        return "Unauthorized", 403
+
+    new_plan = request.form.get("new_plan")
+    db = SessionLocal()
+
+    sub = db.query(Subscription).filter(Subscription.user_id == user_id).first()
+    if sub:
+        sub.plan_type = new_plan
+        db.commit()
+        flash(f"User {user_id} updated to {new_plan}", "info")
+
+    db.close()
+    return redirect("/admin/users")
+
+
+# --- ADMIN DELETE USER ---
+@app.route("/admin/delete-user/<int:user_id>", methods=["POST"])
+@login_required
+def admin_delete_user(user_id):
+    if session.get("user_email") != "your-email@example.com":
+        return "Unauthorized", 403
+
+    db = SessionLocal()
+    # 1. Delete subscription first (foreign key requirement)
+    db.query(Subscription).filter(Subscription.user_id == user_id).delete()
+    # 2. Delete user
+    db.query(User).filter(User.id == user_id).delete()
+
+    db.commit()
+    db.close()
+
+    flash("User deleted successfully", "danger")
+    return redirect("/admin/users")
+
+
+@app.route("/admin/export-users")
+@login_required
+def admin_export_users():
+    # 1. Security Check
+    admin_email = "nitish.pkv@gmail.com"
+    if session.get("user_email") != admin_email:
+        return "Unauthorized", 403
+
+    db = SessionLocal()
+
+    # 2. Get the data (Join User and Subscription)
+    results = db.query(User, Subscription).join(
+        Subscription, User.id == Subscription.user_id
+    ).all()
+
+    db.close()
+
+    # 3. Format data for CSV
+    data = []
+    for user, sub in results:
+        data.append({
+            "User ID": user.id,
+            "Email": user.email,
+            "Plan Type": sub.plan_type.upper(),
+            "Last Login": user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Never',
+            "Created At": user.created_at.strftime('%Y-%m-%d') if user.created_at else 'N/A'
+        })
+
+    # 4. Create CSV using Pandas
+    df = pd.DataFrame(data)
+    output = BytesIO()
+    df.to_csv(output, index=False)
+    output.seek(0)
+
+    return send_file(
+        output,
+        mimetype="text/csv",
+        as_attachment=True,
+        download_name=f"SheetOps_User_Report_{datetime.now().strftime('%Y%m%d')}.csv"
+    )
 
 
 if __name__ == "__main__":

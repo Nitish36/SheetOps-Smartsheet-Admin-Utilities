@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard | SheetOps</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .admin-container { padding: 40px; font-family: 'Poppins', sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #0f172a; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #0f172a; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; }
+        .badge-pro { background: #38bdf8; }
+        .badge-trial { background: #0f172a; }
+        .admin-select {padding: 5px;border-radius: 4px;border: 1px solid #ccc;font-family: 'Poppins', sans-serif;
+        font-size: 12px;cursor: pointer;}
+        /* Red Delete button */
+        .btn-delete {background-color: #f87171;color: white;border: none;padding: 6px 12px;border-radius: 6px;
+        font-size: 12px; cursor: pointer; transition: background 0.3s;}
+        .btn-delete:hover {background-color: #ef4444;}
+        .btn-csv {background-color: #10b981;color: rgb(0, 0, 0);text-decoration: none;padding: 10px 18px;
+            border-radius: 8px;font-family: 'Poppins', sans-serif;font-size: 14px;font-weight: 500;
+            transition: background 0.3s ease;display: inline-block;}
+        .btn-csv:hover {background-color: #059669;box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);}
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>User Audit Log</h1>
+        <p>Overview of everyone registered on SheetOps</p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>User Audit Log</h1>
+            <a href="/admin/export-users" class="btn-csv">
+                <i class="fas fa-file-csv"></i> Download CSV Report
+            </a>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Plan Type</th>
+                    <th>Last Login</th>
+                    <th>Registered On</th>
+                    <th>CRUD</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user,sub in results %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                    <!-- Update Plan Form -->
+                        <form action="/admin/update-plan/{{ user.id }}" method="POST" style="display:inline;">
+                            <select name="new_plan" onchange="this.form.submit()" class="admin-select">
+                                <option value="trial" {% if sub.plan_type == 'trial' %}selected{% endif %}>Trial</option>
+                                <option value="pro" {% if sub.plan_type == 'pro' %}selected{% endif %}>Pro</option>
+                                <option value="enterprise" {% if sub.plan_type == 'enterprise' %}selected{% endif %}>Enterprise</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>{{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Never' }}</td>
+                    <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else 'N/A' }}</td>
+                    <td>
+                    <!-- Delete User Form -->
+                        <form action="/admin/delete-user/{{ user.id }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                            <button type="submit" class="btn-delete">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+        <a href="/menu">← Back to Menu</a>
+    </div>
+</body>
+</html>

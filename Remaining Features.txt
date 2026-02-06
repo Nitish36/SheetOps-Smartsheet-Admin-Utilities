@@ -1,1 +1,3 @@
 Yet to add
+Users who are in trail should convert to paid plan. Incase they already have created email then they
+should just login and update their tier (VV Imp)
