@@ -3,7 +3,17 @@ import urllib3
 import pandas as pd
 import time
 from flask import session
+from database import SessionLocal
+from models.usage import UsageLog
 urllib3.disable_warnings()
+
+def log_activity(user_id, endpoint, method):
+    db = SessionLocal()
+    # Optional: Filter out the API key from the URL if it's in there for security
+    new_log = UsageLog(user_id=user_id, endpoint=endpoint, method=method)
+    db.add(new_log)
+    db.commit()
+    db.close()
 
 def update_progress(message):
     progress = session.get("progress", [])
@@ -36,11 +46,14 @@ def get_all_groups(base_url, headers):
     all_groups = []
     page = 1
     page_size = 200
+    user_id = session.get("user_id")
     update_progress("Fetching Groups (pro/enterprise mode)")
     while True:
         update_progress(f"Requesting page {page}")
         params = {"page": page, "pageSize": page_size}
         resp = safe_get(f"{base_url}", headers, params)
+        if resp:
+            log_activity(user_id, base_url, "GET")
 
         if not resp:
             break
@@ -65,13 +78,16 @@ def get_all_groups(base_url, headers):
 def get_group_members(base_url, headers, groups):
     rows = []
     skipped = []
+    user_id = session.get("user_id")
 
     for group in groups:
         group_id = group["id"]
         group_name = group["name"]
         owner = group.get("owner", "")
-
+        full_url = f"{base_url}/{group_id}"
         resp = safe_get(f"{base_url}/groups/{group_id}", headers)
+        if resp:
+            log_activity(user_id, full_url, "GET")
 
         if not resp:
             skipped.append(group_name)

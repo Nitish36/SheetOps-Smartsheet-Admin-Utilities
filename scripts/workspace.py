@@ -1,9 +1,17 @@
 import requests
 import urllib3
-import pandas as pd
 import time
 from flask import session
+from database import SessionLocal
+from models.usage import UsageLog
 urllib3.disable_warnings()
+
+def log_activity(user_id, endpoint, method):                       # ---->
+    db = SessionLocal()
+    new_log = UsageLog(user_id=user_id, endpoint=endpoint, method=method)
+    db.add(new_log)
+    db.commit()
+    db.close()
 
 def update_progress(message):
     progress = session.get("progress", [])
@@ -14,6 +22,7 @@ def get_workspace(url, headers):
     all_workspaces = []
     page = 1
     page_size = 200   # ✅ max allowed
+    user_id = session.get("user_id")  # ------>
     update_progress("Fetching workspaces (pro/enterprise mode)")
     while True:
         params = {
@@ -22,6 +31,10 @@ def get_workspace(url, headers):
         }
 
         response = requests.get(url, headers=headers, params=params, verify=False)
+        try:                                            # ------>
+            log_activity(user_id, url, "GET")
+        except Exception as e:
+            print(f"Logging failed: {e}")
         response.raise_for_status()
 
         data = response.json()
