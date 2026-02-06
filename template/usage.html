@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smartsheet Admin Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='splash.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <header class="navbar">
+    <div class="logo">Sheet Ops</div>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+    </nav>
+</header>
+
+    <!-- Main Content -->
+    <div class="dashboard-container">
+    <h2>API Usage</h2>
+    <!-- The Chart -->
+    <div class="chart-box">
+        <canvas id="usageChart"></canvas>
+    </div>
+
+    <h2>API Events</h2>
+    <!-- The Table -->
+    <table class="usage-table">
+        <thead>
+            <tr>
+                <th>Date/Time</th>
+                <th>Request URI</th>
+                <th>Method</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+            <tr>
+                <td>{{ event.timestamp.strftime('%b %d, %Y, %I:%M:%S %p') }}</td>
+                <td>https://sheetops.app{{ event.endpoint }}</td>
+                <td><span class="method-tag">{{ event.method }}</span></td>
+                <td>1</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+const ctx = document.getElementById('usageChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ labels|safe }},
+        datasets: [{
+            label: 'Count',
+            data: {{ values|safe }},
+            backgroundColor: 'rgba(45, 212, 191, 0.5)', // Teal color from your image
+            borderColor: 'rgba(45, 212, 191, 1)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true } }
+    }
+});
+</script>
+</body>
+</html>

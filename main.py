@@ -26,6 +26,7 @@ from trial_scripts.workspace import get_trial_workspace
 from trial_scripts.users import get_trial_users
 from trial_scripts.groups import build_trial_group_dataframe,get_all_trial_groups
 from auth.auth_routes import auth_bp
+from models.usage import UsageLog
 
 urllib3.disable_warnings()
 
@@ -533,6 +534,27 @@ def admin_export_users():
         as_attachment=True,
         download_name=f"SheetOps_User_Report_{datetime.now().strftime('%Y%m%d')}.csv"
     )
+
+@app.route("/usage")
+@login_required
+def user_dashboard():
+    user_id = session.get("user_id")
+    db = SessionLocal()
+
+    # 1. Data for the Area Chart (Usage count per day)
+    graph_data = db.query(
+        func.date(UsageLog.timestamp).label('date'),
+        func.count(UsageLog.id).label('count')
+    ).filter(UsageLog.user_id == user_id).group_by(func.date(UsageLog.timestamp)).all()
+
+    labels = [str(row.date) for row in graph_data]
+    values = [row.count for row in graph_data]
+
+    # 2. Data for the table (Recent API Events)
+    recent_events = db.query(UsageLog).filter(UsageLog.user_id == user_id).order_by(UsageLog.timestamp.desc()).limit(10).all()
+
+    db.close()
+    return render_template("usage.html", labels=labels, values=values, events=recent_events)
 
 
 if __name__ == "__main__":
