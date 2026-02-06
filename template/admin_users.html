@@ -3,6 +3,7 @@
 <head>
     <title>Admin Dashboard | SheetOps</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .admin-container { padding: 40px; font-family: 'Poppins', sans-serif; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #0f172a; }
@@ -21,12 +22,39 @@
             border-radius: 8px;font-family: 'Poppins', sans-serif;font-size: 14px;font-weight: 500;
             transition: background 0.3s ease;display: inline-block;}
         .btn-csv:hover {background-color: #059669;box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);}
+        .btn-back {background-color: #04cdff;color: rgb(0, 0, 0);text-decoration: none;padding: 10px 18px;
+            border-radius: 8px;font-family: 'Poppins', sans-serif;font-size: 14px;font-weight: 500;
+            transition: background 0.3s ease;display: inline-block;}
+            /* Metrics Row */
+        .metrics-grid {display: grid;grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;
+            margin-bottom: 30px;}
+        .metric-card {background: #0f172a; padding: 20px;border-radius: 12px;box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 5px solid #38bdf8; /* Blue accent */text-align: center;}
+        .metric-card h3 {font-size: 20px;color: #64748b;margin-bottom: 10px;}
+        .metric-value {font-size: 32px;font-weight: 700;color: #ccc;}
+        .graph-container {background: #0f172a;padding: 20px;border-radius: 12px;box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            height: 300px; margin-bottom: 40px;}
     </style>
 </head>
 <body>
     <div class="admin-container">
         <h1>User Audit Log</h1>
         <p>Overview of everyone registered on SheetOps</p>
+        <div class="metrics-grid">
+        <div class="metric-card">
+            <h3>Total Users</h3>
+            <p class="metric-value">{{ total_users }}</p>
+        </div>
+        <div class="metric-card">
+            <h3>Active Subscriptions</h3>
+            <p class="metric-value">{{ results|length }}</p>
+        </div>
+        </div>
+
+    <!-- 2. Line Graph -->
+    <div class="graph-container">
+        <canvas id="userGrowthChart"></canvas>
+    </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h1>User Audit Log</h1>
             <a href="/admin/export-users" class="btn-csv">
@@ -40,6 +68,7 @@
                     <th>ID</th>
                     <th>Email</th>
                     <th>Plan Type</th>
+                    <th>Is Active</th>
                     <th>Last Login</th>
                     <th>Registered On</th>
                     <th>CRUD</th>
@@ -60,6 +89,7 @@
                             </select>
                         </form>
                     </td>
+                    <td>{{sub.is_trial_active}}</td>
                     <td>{{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Never' }}</td>
                     <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else 'N/A' }}</td>
                     <td>
@@ -73,7 +103,32 @@
             </tbody>
         </table>
         <br>
-        <a href="/menu">← Back to Menu</a>
+        <a href="/menu" class="btn-back"><i class="fas fa-file-csv"></i> ← Back to Menu</a>
     </div>
+<script>
+    const ctx = document.getElementById('userGrowthChart').getContext('2d');
+    const userGrowthChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ chart_labels | safe }}, // Dates from Python
+            datasets: [{
+                label: 'New Users per Day',
+                data: {{ chart_values | safe }}, // Counts from Python
+                borderColor: '#38bdf8',
+                backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.3 // Makes the line curved
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+</script>
 </body>
 </html>

@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template, send_file, session, redirect, flash
+from sqlalchemy import func
 import requests
 import pandas as pd
 from io import BytesIO
@@ -419,21 +420,37 @@ def select_plan():
 @app.route("/admin/users")
 @login_required
 def admin_user_list():
-    # 1. SECURITY CHECK: Only allow your specific email
-    admin_email = "nitish.pkv@gmail.com"  # <--- YOUR ACTUAL EMAIL HERE
-
+    admin_email = "nitish.pkv@gmail.com"
     if session.get("user_email") != admin_email:
-        flash("Access Denied: You do not have administrator privileges.", "danger")
+        flash("Access Denied", "danger")
         return redirect("/menu")
 
-    # 2. Fetch all users from the database
     db = SessionLocal()
+
+    # 1. Fetch data for the table
     results = db.query(User, Subscription).join(
         Subscription, User.id == Subscription.user_id
     ).all()
+
+    # 2. Get data for the Line Graph (Counts per Date)
+    # This groups users by date and counts them
+    graph_query = db.query(
+        func.date(User.created_at).label('date'),
+        func.count(User.id).label('count')
+    ).group_by(func.date(User.created_at)).order_by(func.date(User.created_at)).all()
+
+    # Prepare labels (dates) and values (counts) for Chart.js
+    chart_labels = [str(row.date) for row in graph_query]
+    chart_values = [row.count for row in graph_query]
+
+    total_users = len(results)
     db.close()
 
-    return render_template("admin_users.html", results=results)
+    return render_template("admin_users.html",
+                           results=results,
+                           total_users=total_users,
+                           chart_labels=chart_labels,
+                           chart_values=chart_values)
 
 
 # --- ADMIN UPDATE PLAN ---
