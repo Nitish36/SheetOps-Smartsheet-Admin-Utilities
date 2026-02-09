@@ -192,8 +192,7 @@ body {
 }
 
 .splash-content img {
-  width: 170px;
-  margin-bottom: 16px;
+  width: 300px;
 }
 
 .splash-content h1 {
@@ -247,10 +246,10 @@ body {
   border: 16px solid #1f2937;      /* soft dark grey */
   border-top: 16px solid #46dae5;  /* premium indigo */
   border-radius: 50%;
-  width: 80px;
-  height: 80px;
+  width: 120px;
+  height: 120px;
   animation: spin 1.5s linear infinite;
-  margin-left: 50px; 
+  margin-left: 90px; 
 }
 
 @keyframes spin {
