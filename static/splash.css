@@ -36,7 +36,7 @@ body {
 }
 
 /* Hero Section */
-.hero {
+/*.hero {
     position: relative;
     min-height: 100vh;
     padding: 4rem 3rem;
@@ -47,6 +47,152 @@ body {
     max-width: 520px;
     position: relative;
     z-index: 2;
+}*/
+/* Update the Hero to handle the image */
+.hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 0 10%;
+    /* The Left Side Color */
+    background-color: #020617; 
+    overflow: hidden;
+}
+.hero-description {
+    font-size: 1.15rem;
+    line-height: 1.7;
+    color: #cbd5e1; /* Light Slate color for readability on dark background */
+    margin-bottom: 2.5rem;
+    max-width: 500px; /* Keeps the text block from getting too wide */
+}
+
+/* The Bold Intro Sentence */
+.bold-intro {
+    display: block; /* Puts the rest of the text on a new visual line if desired */
+    font-weight: 700;
+    color: #ffffff; /* Brighter white for the important first sentence */
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem; /* Slightly larger for impact */
+}
+
+/* Button styling for v4 */
+.btn-primary {
+    background-color: #054e48; /* Teal brand color */
+    color: white;
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.3);
+}
+
+.btn-primary:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
+}
+
+/* This is the Right Side - It now holds the image directly */
+.hero-image-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 60%; /* Slightly wider to account for the slant */
+    height: 100%;
+    z-index: 1;
+    /* This creates the slant cut on the image itself */
+    clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+
+.hero-image-container img {
+    width: 100%;
+    height: 100%;
+    /* This is the magic: it makes the image fill the area like a background */
+    object-fit: cover; 
+    object-position: center;
+    /* Optional: add a slight dark overlay so text is easier to read if it overlaps */
+    filter: brightness(0.8); 
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10; /* Ensures text is always on top */
+    max-width: 550px;
+}
+
+/* Ensure your text is white/light to stand out against the navy background */
+.hero-content h1 {
+    color: #ffffff;
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.hero-content p {
+    color: #cbd5e1;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+/* Remove the ::before slant from the previous version as the image container now does the slanting */
+.hero::before {
+    display: none;
+}
+
+/* Responsive: Hide or stack image on mobile */
+@media (max-width: 992px) {
+    .hero-image-container {
+        display: none; /* Best to hide the heavy image on small mobile screens */
+    }
+    .hero::before {
+        width: 100%;
+        clip-path: none; /* Simple background on mobile */
+        opacity: 0.1; /* Make it very faint so text is readable */
+    }
+}
+@media (max-width: 768px) {
+    .hero {
+        flex-direction: column; /* Stack text on top of image */
+        padding: 80px 20px 0 20px; /* Space for mobile header */
+        justify-content: flex-start;
+        text-align: center;
+        min-height: 100vh;
+    }
+
+    .hero-content {
+        max-width: 100%;
+        margin-bottom: 40px;
+        z-index: 10;
+    }
+
+    .hero-content h1 {
+        font-size: 2.2rem; /* Smaller font for mobile */
+        line-height: 1.2;
+    }
+
+    .hero-content p {
+        font-size: 1rem;
+    }
+
+    /* The Image Container on Mobile */
+    .hero-image-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: #38bdf8; /* Your Teal/Blue brand color */
+        z-index: 5;
+    }
+
+    .hero-image-container img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+    }
 }
 
 /* Full-width wave */
@@ -86,7 +232,7 @@ body {
     line-height: 1.6;
 }
 
-.btn-primary {
+/*.btn-primary {
     display: inline-block;
     margin-top: 2rem;
     padding: 0.8rem 1.8rem;
@@ -99,7 +245,7 @@ body {
 
 .btn-primary:hover {
     background-color: #1d4ed8;
-}
+}*/
 
 /* Graph Section */
 .hero-graph {
