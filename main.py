@@ -18,6 +18,7 @@ from scripts.report import get_reports
 from scripts.groups import get_group_members,get_all_groups,build_group_dataframe
 from scripts.users import get_users
 from scripts.webhook import get_webhooks
+from scripts.contacts import get_pro_contact
 from trial_scripts.sheets import get_trial_sheets
 from trial_scripts.report import get_trial_reports
 from trial_scripts.dashboard import get_trial_dashboard
@@ -25,6 +26,7 @@ from trial_scripts.webhook import get_trial_webhooks
 from trial_scripts.workspace import get_trial_workspace
 from trial_scripts.users import get_trial_users
 from trial_scripts.groups import build_trial_group_dataframe,get_all_trial_groups
+from trial_scripts.contacts import get_trial_contact
 from auth.auth_routes import auth_bp
 from models.usage import UsageLog
 
@@ -46,6 +48,7 @@ REPORTS_URL = "https://api.smartsheet.com/2.0/reports"
 WORKSPACE_URL = "https://api.smartsheet.com/2.0/workspaces"
 WEBHOOK_URL = "https://api.smartsheet.com/2.0/webhooks"
 DASHBOARD_URL = "https://api.smartsheet.com/2.0/sights"
+BASE_URL = "https://api.smartsheet.com/2.0/contacts"
 
 def init_progress():
     session["progress"] = []
@@ -356,6 +359,48 @@ def fetch_dashboards():
         )
 
     return render_template("dashboard.html")
+
+
+@app.route("/contacts", methods=["GET", "POST"])
+@login_required
+def fetch_contacts():
+    if request.method == "POST":
+        api_key = request.form.get("api_key")
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+
+        # Determine the URL
+        # BASE_URL in your main.py should be "https://api.smartsheet.com/2.0/contacts"
+        CONTACTS_URL = f"{BASE_URL}/contacts" if not BASE_URL.endswith("/contacts") else BASE_URL
+
+        user_plan = session.get("user_plan", "trial")
+
+        # 1. Fetch Data based on plan
+        if user_plan == "pro" or user_plan == "enterprise":
+            data = get_pro_contact(CONTACTS_URL, headers)
+        else:
+            # Your existing trial function with the 50 limit
+            data = get_trial_contact(CONTACTS_URL, headers)
+
+        if not data:
+            return "No contacts found or API error.", 400
+
+        # 2. Create CSV
+        df = pd.DataFrame(data)
+        output = BytesIO()
+        df.to_csv(output, index=False, encoding='utf-8-sig')
+        output.seek(0)
+
+        return send_file(
+            output,
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name=f"smartsheet_contacts_{user_plan}.csv"
+        )
+
+    return render_template("contact.html")
 
 @app.route("/workspaces", methods=["GET","POST"])
 @login_required

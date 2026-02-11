@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smartsheet Admin Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='splash.js') }}"></script>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <header class="navbar">
+    <div class="logo">Sheet Ops</div>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/usage">Dashboard</a>
+        {% if session.get("user_id") %}
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">Logout</a>
+        {% else %}
+        <a href="/login">Login</a>
+        {% endif %}
+    </nav>
+</header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <div class="card">
+            <h2>Contact Export</h2>
+            <p class="subtitle">
+                Generate a CSV of Smartsheet Contact metadata using your API key.
+            </p>
+
+            <form method="POST" onsubmit="startPolling()">
+                <label>Smartsheet API Key</label>
+                <input
+                    type="password"
+                    name="api_key"
+                    required
+                    placeholder="Enter your API key"
+                >
+
+                <button type="submit" class="btn success" onclick="myFunction()">
+                    Generate CSV
+                </button>
+                <div id="snackbar">API Key Submitted</div>
+            </form>
+
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+        </div>
+    </main>
+<script>
+let pollingInterval = null;
+
+function startPolling() {
+  const box = document.getElementById("progress-box");
+  const list = document.getElementById("progress-list");
+
+  box.style.display = "block";
+  list.innerHTML = "";
+
+  pollingInterval = setInterval(() => {
+    fetch("/progress")
+      .then(res => res.json())
+      .then(data => {
+        list.innerHTML = "";
+        data.messages.forEach(msg => {
+          const li = document.createElement("li");
+          li.textContent = "• " + msg;
+          list.appendChild(li);
+        });
+      });
+  }, 1500);
+}
+
+function stopPolling() {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+  }
+}
+</script>
+</body>
+</html>

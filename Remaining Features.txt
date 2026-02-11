@@ -4,6 +4,5 @@ should just login and update their tier (VV Imp)
 
 
 Add the progress theme for all the endpoints
-Add the navbar thing for all the endpoints
 
 Check on the flash message since its shown to the left
