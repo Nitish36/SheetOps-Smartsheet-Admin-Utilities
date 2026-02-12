@@ -466,7 +466,7 @@ def select_plan():
 @app.route("/admin/users")
 @login_required
 def admin_user_list():
-    admin_email = "nitish.pkv@gmail.com"
+    admin_email = "admin@sheetops.com"
     if session.get("user_email") != admin_email:
         flash("Access Denied", "danger")
         return redirect("/menu")
