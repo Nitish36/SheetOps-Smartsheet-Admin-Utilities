@@ -1,101 +1,138 @@
 import requests
-from urllib3.util.retry import Retry
-from requests.adapters import HTTPAdapter
-import pandas as pd
-import time
-import os
 import urllib3
+import time
+from flask import session
+from database import SessionLocal
+from models.usage import UsageLog
+
 urllib3.disable_warnings()
 
 
-class SmartsheetSheetExtractor:
-    def __init__(self, token):
-        self.base_url = "https://api.smartsheet.com/2.0"
-        self.headers = {
-            "Authorization": f"Bearer {token}",
-            "smartsheet-integration-source": "AI,SampleOrg,Report-Exporter-v1"
+# --- Helper Functions ---
+
+def log_activity(user_id, endpoint, method):
+    try:
+        db = SessionLocal()
+        new_log = UsageLog(user_id=user_id, endpoint=endpoint, method=method)
+        db.add(new_log)
+        db.commit()
+        db.close()
+    except Exception as e:
+        print(f"Logging failed: {e}")
+
+
+def update_progress(message):
+    progress = session.get("progress", [])
+    progress.append(message)
+    session["progress"] = progress
+
+
+# --- Main Logic ---
+
+def get_detailed_sheets(base_url, headers):
+    """
+    Step 1: Get high-level list of all sheets
+    Step 2: Loop through every sheet to get detailed metadata
+    """
+    all_sheets_summary = []
+    final_results = []
+
+    user_id = session.get("user_id")
+    page = 1
+    page_size = 200  # Max allowed by Smartsheet
+
+    # --- PHASE 1: Get the Inventory (List of IDs) ---
+    update_progress("Step 1/2: Fetching sheet inventory...")
+
+    while True:
+        params = {
+            "page": page,
+            "pageSize": page_size
         }
-        self.session = requests.Session()
-        retries = Retry(total=5, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
-        self.session.mount("https://", HTTPAdapter(max_retries=retries))
 
-    def get_all_sheets_list(self):
-        """Step 1: Get the high-level list of all sheets"""
-        sheets = []
-        page = 1
-        while True:
-            # We use the /sheets endpoint to get the inventory
-            response = self.session.get(f"{self.base_url}/sheets", headers=self.headers,
-                                        params={"page": page, "pageSize": 200}, verify=False)
-            response.raise_for_status()
-            data = response.json()
-            print(data)
-            sheets.extend(data.get("data", []))
-            if page >= data.get("totalPages", 0): break
-            page += 1
-        return sheets
+        # 1. API Call
+        response = requests.get(base_url, headers=headers, params=params, verify=False)
 
-    def extract_sheet_details(self):
-        """Step 2: Get detailed metadata for each sheet"""
-        raw_sheets = self.get_all_sheets_list()
-        print(raw_sheets)
-        final_results = []
+        # 2. Log Activity
+        log_activity(user_id, base_url, "GET")
 
-        print(f"📋 Found {len(raw_sheets)} sheets. Fetching enterprise metadata...")
+        response.raise_for_status()
+        data = response.json()
+        batch = data.get("data", [])
 
-        for s in raw_sheets:
-            sheet_id = s.get("id")
-            try:
-                # include=owner,source handles those specific fields
-                # pageSize=0 ensures we DON'T download rows (making it much faster)
-                params = {
-                    "include": "owner,source,workspace",
-                    "pageSize": 0
-                }
-                res = self.session.get(f"{self.base_url}/sheets/{sheet_id}", headers=self.headers, params=params)
+        if not batch:
+            break
 
-                if res.status_code != 200:
-                    print(f"⚠️ Could not access sheet: {sheet_id}")
-                    continue
+        all_sheets_summary.extend(batch)
+        update_progress(f"Found {len(all_sheets_summary)} sheets so far...")
 
-                detail = res.json()
+        if page >= data.get("totalPages", 0):
+            break
 
-                # Mapping the data to your specific column requirements
-                final_results.append({
-                    "id": detail.get("id"),
-                    "accesslevel": detail.get("accessLevel"),
-                    "createdAt": detail.get("createdAt"),
-                    "dependenciesEnabled": detail.get("dependenciesEnabled"),
-                    "ganttEnabled": detail.get("ganttEnabled"),
-                    "hasSummaryFields": detail.get("hasSummaryFields"),
-                    "name": detail.get("name"),
-                    "owner": detail.get("owner"),  # This is usually the owner's email
-                    "permalink": detail.get("permalink"),
-                    "source.type": detail.get("source", {}).get("type") if detail.get("source") else None,
-                    "totalRowCount": detail.get("totalRowCount"),
-                    "userPermissions.summaryPermissions": detail.get("userPermissions", {}).get("summaryPermissions"),
-                    "version": detail.get("version"),
-                    "workspace.name": detail.get("workspace", {}).get("name") if detail.get("workspace") else None,
-                    "workspace.accessLevel": detail.get("workspace", {}).get("accessLevel") if detail.get(
-                        "workspace") else None
-                })
+        page += 1
+        time.sleep(0.2)  # Polite delay
 
-                # Small sleep to prevent aggressive API hitting
-                time.sleep(0.1)
+    # --- PHASE 2: Get Detailed Metadata ---
+    total_sheets = len(all_sheets_summary)
+    update_progress(f"Step 2/2: Extracting details for {total_sheets} sheets...")
 
-            except Exception as e:
-                print(f"❌ Error on sheet {sheet_id}: {e}")
+    for index, sheet in enumerate(all_sheets_summary):
+        sheet_id = sheet.get("id")
+        sheet_name = sheet.get("name")
 
-        return pd.DataFrame(final_results)
+        # Calculate progress percentage every 10 sheets to avoid spamming session
+        if index % 10 == 0:
+            update_progress(f"Processing {index}/{total_sheets}: {sheet_name}")
 
+        try:
+            # We use specific params to get Owner, Source, and Workspace info
+            # pageSize=0 ensures we don't download the rows (faster)
+            detail_url = f"{base_url}/{sheet_id}"
+            params = {
+                "include": "owner,source,workspace",
+                "pageSize": 0
+            }
 
-# --- EXECUTION ---
-TOKEN = "Token"
-extractor = SmartsheetSheetExtractor(TOKEN)
-df_sheets = extractor.extract_sheet_details()
+            # 1. API Call
+            res = requests.get(detail_url, headers=headers, params=params, verify=False)
 
-# Export to CSV
-#os.makedirs("exports", exist_ok=True)
-df_sheets.to_csv("sheets/Sheets_Detailed_Metadata.csv", index=False)
+            # 2. Log Activity (Logs every single sheet detail fetch)
+            log_activity(user_id, detail_url, "GET")
 
-print(f"\n🎉 Success! Exported {len(df_sheets)} sheets to CSV.")
+            if res.status_code != 200:
+                print(f"⚠️ Could not access sheet: {sheet_id}")
+                continue
+
+            detail = res.json()
+
+            # 3. Map the Data (Exactly as requested)
+            final_results.append({
+                "id": detail.get("id"),
+                "accesslevel": detail.get("accessLevel"),
+                "createdAt": detail.get("createdAt"),
+                "dependenciesEnabled": detail.get("dependenciesEnabled"),
+                "ganttEnabled": detail.get("ganttEnabled"),
+                "hasSummaryFields": detail.get("hasSummaryFields"),
+                "name": detail.get("name"),
+                "owner": detail.get("owner"),
+                "permalink": detail.get("permalink"),
+                "source.type": detail.get("source", {}).get("type") if detail.get("source") else None,
+                "totalRowCount": detail.get("totalRowCount"),
+                "userPermissions.summaryPermissions": detail.get("userPermissions", {}).get("summaryPermissions"),
+                "version": detail.get("version"),
+                "workspace.name": detail.get("workspace", {}).get("name") if detail.get("workspace") else None,
+                "workspace.accessLevel": detail.get("workspace", {}).get("accessLevel") if detail.get(
+                    "workspace") else None
+            })
+
+            # Small sleep to prevent rate limiting
+            time.sleep(0.1)
+
+        except Exception as e:
+            print(f"❌ Error on sheet {sheet_id}: {e}")
+            # Optional: update_progress(f"Error fetching {sheet_name}")
+
+    update_progress("Detailed extraction completed")
+    update_progress("✅ Export ready")
+
+    return final_results

@@ -283,63 +283,124 @@ body {
 }
 
 /* Container */
+/* Container adjustments */
 .menu-container {
   width: 100%;
+  max-width: 500px; /* Limit width on desktop so it looks nice */
+  margin: 20px auto;
   background: linear-gradient(180deg, #0f172a, #020617);
   padding: 4%;
   border-radius: 14px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
-  
 }
 
-/* Title */
 .menu-title {
   color: #ffffff;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
-  margin-bottom: 16px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #1e293b;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #334155;
 }
 
-/* List reset */
 .menu-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-/* Item */
+/* Base Menu Item */
 .menu-item {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   border-radius: 10px;
   transition: all 0.25s ease;
 }
 
-/* Link */
-.menu-item a {
+/* Wrapper to hold Link and Plus Button on same row */
+.menu-link-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* Background for the main row */
+  background: transparent; 
+  border-radius: 10px;
+}
+
+.menu-link-wrapper:hover {
+  background: #1e293b;
+}
+
+/* Main Links */
+.menu-item > a, 
+.menu-link-wrapper > a {
   display: block;
-  padding: 10px 14px;
+  flex-grow: 1; /* Takes up all space */
+  padding: 12px 14px;
   text-decoration: none;
   color: #c7d2fe;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 500;
-  border-radius: 10px;
-  transition: all 0.25s ease;
+  transition: color 0.2s ease;
 }
 
-/* Hover */
-.menu-item:hover a {
-  background: #1e293b;
+.menu-item:hover > a, 
+.menu-link-wrapper:hover > a {
   color: #ffffff;
   transform: translateX(4px);
 }
 
-/* Active */
-.menu-item.active a {
-  background: #312e81;
-  color: #ffffff;
-  font-weight: 600;
+/* The Plus/Minus Toggle Button */
+.toggle-btn {
+  color: #c7d2fe;
+  font-size: 24px;
+  padding: 0 15px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.3s ease, color 0.3s;
+}
+
+.toggle-btn:hover {
+  color: #38bdf8; /* Teal/Blue highlight */
+}
+
+.toggle-btn.open {
+  color: #38bdf8;
+  /* transform: rotate(45deg); Optional: if you use a plus icon */
+}
+
+/* --- SUBMENU STYLING --- */
+.submenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 0; /* Hidden by default */
+  overflow: hidden;
+  transition: max-height 0.3s ease-out; /* Smooth slide animation */
+  background-color: rgba(30, 41, 59, 0.4); /* Slightly darker background */
+  border-radius: 0 0 10px 10px;
+}
+
+.submenu li a {
+  display: block;
+  padding: 10px 14px 10px 35px; /* Indented left padding */
+  text-decoration: none;
+  color: #94a3b8; /* Dimmer color for sub-items */
+  font-size: 16px;
+  border-left: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.submenu li a:hover {
+  color: #38bdf8; /* Highlight color */
+  background-color: rgba(56, 189, 248, 0.1);
+  border-left: 2px solid #38bdf8;
+}
+
+/* Back Button Special Styling */
+.back-item {
+  margin-top: 20px;
+  border-top: 1px solid #334155;
+  padding-top: 10px;
 }
 
 /* Splash Screen */

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Menu | SheetOps</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='splash.css') }}">
+  <!-- Optional: FontAwesome for better icons (remove if not needed) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-container">
+      {% for category, message in messages %}
+        <div class="flash-message {{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% endwith %}
+
+  <div class="menu-container">
+    <h3 class="menu-title">SheetOps Reference</h3>
+
+    <ul class="menu-list">
+      <li class="menu-item"><a href="/about">About</a></li>
+      <li class="menu-item"><a href="/groups">Groups</a></li>
+      <li class="menu-item"><a href="/users">Users</a></li>
+
+      <!-- SHEETS (With Submenu) -->
+      <li class="menu-item has-submenu">
+        <div class="menu-link-wrapper">
+            <a href="/sheets">Sheets</a>
+            <span class="toggle-btn" onclick="toggleMenu('sheets-submenu', this)">+</span>
+        </div>
+        <ul class="submenu" id="sheets-submenu">
+            <li><a href="/sheets/detailed">Sheet Detailed</a></li>
+            <li><a href="/sheets/publish">Sheet Publish</a></li>
+        </ul>
+      </li>
+
+      <!-- REPORTS (With Submenu) -->
+      <li class="menu-item has-submenu">
+        <div class="menu-link-wrapper">
+            <a href="/reports">Reports</a>
+            <span class="toggle-btn" onclick="toggleMenu('reports-submenu', this)">+</span>
+        </div>
+        <ul class="submenu" id="reports-submenu">
+            <li><a href="/reports/detailed">Report Detailed</a></li>
+            <li><a href="/reports/publish">Report Publish</a></li>
+        </ul>
+      </li>
+
+      <li class="menu-item"><a href="/contacts">Contacts</a></li>
+
+      <!-- DASHBOARDS (With Submenu) -->
+      <li class="menu-item has-submenu">
+        <div class="menu-link-wrapper">
+            <a href="/dashboards">Dashboards</a>
+            <span class="toggle-btn" onclick="toggleMenu('dashboards-submenu', this)">+</span>
+        </div>
+        <ul class="submenu" id="dashboards-submenu">
+            <li><a href="/dashboards/detailed">Dashboard Detailed</a></li>
+            <li><a href="/dashboards/publish">Dashboard Publish</a></li>
+        </ul>
+      </li>
+
+      <li class="menu-item"><a href="/webhooks">Webhook</a></li>
+      <li class="menu-item"><a href="/workspaces">Workspace</a></li>
+
+      <li class="menu-item back-item">
+        <a href="/"> < Back</a>
+      </li>
+    </ul>
+  </div>
+
+<script>
+  // Flash Message Logic
+  setTimeout(function() {
+    let flashes = document.getElementsByClassName('flash-message');
+    for (let f of flashes) {
+      f.style.transition = "opacity 0.5s ease";
+      f.style.opacity = "0";
+      setTimeout(() => f.remove(), 500);
+    }
+  }, 3000);
+
+  // Accordion Logic
+  function toggleMenu(id, btn) {
+    var submenu = document.getElementById(id);
+    
+    // Toggle the class to show/hide
+    if (submenu.style.maxHeight) {
+        submenu.style.maxHeight = null;
+        btn.innerHTML = "+"; // Change icon back
+        btn.classList.remove("open");
+    } else {
+        submenu.style.maxHeight = submenu.scrollHeight + "px";
+        btn.innerHTML = "−"; // Change icon to minus
+        btn.classList.add("open");
+    }
+  }
+</script>
+</body>
+</html>

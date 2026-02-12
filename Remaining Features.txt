@@ -2,7 +2,10 @@ Yet to add
 Users who are in trail should convert to paid plan. Incase they already have created email then they
 should just login and update their tier (VV Imp)
 
+Add the enterprise code to the website
 
 Add the progress theme for all the endpoints
 
 Check on the flash message since its shown to the left
+
+Make it responsive for screen 1920*1080
