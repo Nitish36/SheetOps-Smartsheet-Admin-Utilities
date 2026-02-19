@@ -179,11 +179,8 @@ input[type=password] {
   margin-bottom: 4px;
 }
 
-.dashboard-container {
-    padding: 20px;
-    font-family: 'Inter', sans-serif;
-    background-color: #0f172a;
-}
+.dashboard-container { max-width: 1200px; margin: 40px auto; padding: 20px; }
+.dashboard-header { margin-bottom: 30px; }
 
 .chart-box {
     height: 300px;
@@ -221,3 +218,19 @@ input[type=password] {
     font-weight: bold;
     color: #02ff41;
 }
+/* Metrics */
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px; }
+.metric-card { background: rgb(25, 5, 30); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.metric-value { font-size: 2.5rem; font-weight: 700; color: #ffffff; }
+.plan-name { color: #0d9488; }
+.trial-days { display: block; margin-top: 10px; font-size: 0.9rem; color: #64748b; }
+.trial-days.expired { color: #ef4444; font-weight: bold; }
+.btn-upgrade { display: inline-block; margin-top: 15px; background: #0d9488; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; }
+
+/* Chart & Table */
+.chart-container, .events-container { background: rgb(25, 5, 30); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 40px; }
+.chart-container { height: 400px; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+th { color: #64748b; font-size: 0.8rem; text-transform: uppercase; }
+.method-tag { background: rgb(25, 5, 30); padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; }

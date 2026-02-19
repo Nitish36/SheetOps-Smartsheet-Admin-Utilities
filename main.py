@@ -6,7 +6,7 @@ from io import BytesIO
 import urllib3
 import secrets
 import os
-from datetime import datetime
+from datetime import datetime,date, timezone
 from database import SessionLocal
 from models.user import User
 from models.subscription import Subscription
@@ -595,7 +595,34 @@ def user_dashboard():
     user_id = session.get("user_id")
     db = SessionLocal()
 
-    # 1. Data for the Area Chart (Usage count per day)
+    # --- 1. METRIC WIDGETS (KPIs) ---
+
+    # Total API calls this month
+    today = date.today()
+    start_of_month = date(today.year, today.month, 1)
+
+    total_usage_month = db.query(func.count(UsageLog.id)).filter(
+        UsageLog.user_id == user_id,
+        func.date(UsageLog.timestamp) >= start_of_month
+    ).scalar() or 0
+
+    # Total API calls of all time
+    total_usage_all_time = db.query(func.count(UsageLog.id)).filter(
+        UsageLog.user_id == user_id
+    ).scalar() or 0
+
+    # --- 2. SUBSCRIPTION STATUS ---
+
+    days_left = None
+    subscription = db.query(Subscription).filter(Subscription.user_id == user_id).first()
+    if subscription and subscription.plan_type == 'trial' and subscription.trial_end:
+        # Make the database time "aware" to prevent timezone errors
+        trial_end_aware = subscription.trial_end.replace(tzinfo=timezone.utc)
+        time_remaining = trial_end_aware - datetime.now(timezone.utc)
+        # We use max(0, ...) to avoid showing negative days
+        days_left = max(0, time_remaining.days)
+
+    # 3. Data for the Area Chart (Usage count per day)
     graph_data = db.query(
         func.date(UsageLog.timestamp).label('date'),
         func.count(UsageLog.id).label('count')
@@ -608,7 +635,14 @@ def user_dashboard():
     recent_events = db.query(UsageLog).filter(UsageLog.user_id == user_id).order_by(UsageLog.timestamp.desc()).limit(10).all()
 
     db.close()
-    return render_template("usage.html", labels=labels, values=values, events=recent_events)
+    return render_template("usage.html",
+                           labels=labels,
+                           values=values,
+                           events=recent_events,
+                           total_usage_month=total_usage_month,
+                           total_usage_all_time=total_usage_all_time,
+                           current_plan=session.get('user_plan', 'Trial'),
+                           days_left=days_left)
 
 
 # In Main.py

@@ -223,3 +223,68 @@ FLASK_SECRET_KEY="a-new-random-secret-key"
 Then, at the very top of Main.py, add this to load the variables:
 from dotenv import load_dotenv
 load_dotenv()
+
+
+### Payment Code #######
+# In Main.py
+import stripe
+import os
+
+# Configure Stripe with your secret key (best to use environment variables)
+stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
+
+@app.route("/upgrade-plan", methods=["POST"])
+@login_required
+def upgrade_plan():
+    new_plan = request.form.get("plan")
+    stripe_token = request.form.get("stripeToken") # This token comes from the Stripe payment form
+    user_id = session.get("user_id")
+
+    # --- PAYMENT LOGIC ---
+    try:
+        # Create a Stripe customer for recurring billing later if you want
+        customer = stripe.Customer.create(
+            email=session.get("user_email"),
+            source=stripe_token
+        )
+
+        # Determine amount based on plan
+        amount_in_cents = 0
+        if new_plan == 'pro':
+            amount_in_cents = 1500 # $15.00
+        elif new_plan == 'enterprise':
+            amount_in_cents = 4000 # $40.00
+
+        # One-time charge for now
+        charge = stripe.Charge.create(
+            customer=customer.id,
+            amount=amount_in_cents,
+            currency="usd",
+            description=f"SheetOps - {new_plan.title()} Plan"
+        )
+
+        # --- DATABASE UPDATE (ONLY RUNS IF CHARGE SUCCEEDS) ---
+        db = SessionLocal()
+        sub = db.query(Subscription).filter(Subscription.user_id == user_id).first()
+        if sub:
+            sub.plan_type = new_plan
+            sub.is_trial_active = False
+            db.commit()
+
+            session['user_plan'] = new_plan # Update session
+
+            flash(f"Payment successful! You've been upgraded to the {new_plan.title()} plan.", "success")
+            db.close()
+            return redirect("/menu")
+
+    except stripe.error.CardError as e:
+        # Since it's a decline, card error, etc.
+        flash(f"Your card was declined. Please try again or use a different card.", "danger")
+        return redirect(url_for('fetch_pricing'))
+    except Exception as e:
+        # Something else happened (e.g. network issue)
+        flash("An error occurred during payment. Please contact support.", "danger")
+        return redirect(url_for('fetch_pricing'))
+
+    # Fallback redirect
+    return redirect(url_for('fetch_pricing'))

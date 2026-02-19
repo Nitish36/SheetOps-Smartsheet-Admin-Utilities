@@ -26,58 +26,91 @@
 </header>
 
     <!-- Main Content -->
-    <div class="dashboard-container">
-    <h2>API Usage</h2>
-    <!-- The Chart -->
-    <div class="chart-box">
-        <canvas id="usageChart"></canvas>
+     <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>Welcome Back, {{ session.get('user_email', 'User') }}!</h1>
+            <p>Here's a summary of your SheetOps activity.</p>
+        </header>
+
+        <!-- =========== METRIC WIDGETS =========== -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3>API Calls (This Month)</h3>
+                <p class="metric-value">{{ total_usage_month }}</p>
+            </div>
+            <div class="metric-card">
+                <h3>Total API Calls</h3>
+                <p class="metric-value">{{ total_usage_all_time }}</p>
+            </div>
+            <div class="metric-card plan-card">
+                <h3>Current Plan</h3>
+                <p class="metric-value plan-name">{{ current_plan | title }}</p>
+                <!-- Show trial days left OR an upgrade button -->
+                {% if days_left is not none and days_left > 0 %}
+                    <span class="trial-days">{{ days_left }} days left in trial</span>
+                {% elif days_left == 0 %}
+                     <span class="trial-days expired">Trial Expired!</span>
+                {% endif %}
+                <a href="{{ url_for('fetch_pricing') }}" class="btn-upgrade">Manage Plan</a>
+            </div>
+        </div>
+
+        <!-- =========== USAGE CHART =========== -->
+        <div class="chart-container">
+            <h3>Usage Over Time</h3>
+            <canvas id="usageChart"></canvas>
+        </div>
+
+        <!-- =========== RECENT EVENTS TABLE =========== -->
+        <div class="events-container">
+            <h3>Recent API Events</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date/Time (UTC)</th>
+                        <th>Endpoint</th>
+                        <th>Method</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                    <tr>
+                        <td>{{ event.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>{{ event.endpoint }}</td>
+                        <td><span class="method-tag">{{ event.method }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3">No activity recorded yet. Run an export to see your usage!</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <h2>API Events</h2>
-    <!-- The Table -->
-    <table class="usage-table">
-        <thead>
-            <tr>
-                <th>Date/Time</th>
-                <th>Request URI</th>
-                <th>Method</th>
-                <th>Count</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for event in events %}
-            <tr>
-                <td>{{ event.timestamp.strftime('%b %d, %Y, %I:%M:%S %p') }}</td>
-                <td>https://sheetops.app{{ event.endpoint }}</td>
-                <td><span class="method-tag">{{ event.method }}</span></td>
-                <td>1</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
 <script>
-const ctx = document.getElementById('usageChart').getContext('2d');
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: {{ labels|safe }},
-        datasets: [{
-            label: 'Count',
-            data: {{ values|safe }},
-            backgroundColor: 'rgba(45, 212, 191, 0.5)', // Teal color from your image
-            borderColor: 'rgba(45, 212, 191, 1)',
-            fill: true,
-            tension: 0.4
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: { y: { beginAtZero: true } }
-    }
-});
+    const ctx = document.getElementById('usageChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ labels|tojson }},
+            datasets: [{
+                label: 'API Calls',
+                data: {{ values|tojson }},
+                backgroundColor: 'rgba(13, 148, 136, 0.2)',
+                borderColor: '#0d9488',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
 </script>
 </body>
 </html>
