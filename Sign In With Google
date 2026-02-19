@@ -1,0 +1,225 @@
+
+Excellent choice. Sign In with Google is a high-impact feature that users love because it's secure and saves them from remembering another password.
+To implement this, we will use the authlib library, which is a modern and powerful choice for handling OAuth in Flask.
+Here is the complete, step-by-step plan.
+
+Step 0: Prerequisites (The "One-Time Setup")
+A. Install authlib
+
+    First, install the library:
+    code
+    Bash
+pip install authlib
+
+B. Get Google API Credentials
+
+    This is the most important step. You need a Client ID and a Client Secret from Google.
+    Go to the Google Cloud Console.
+    If you don't have a project, create one (e.g., "SheetOps").
+    Go to Credentials -> Create Credentials -> OAuth client ID.
+    Select Web application.
+    Under Authorized redirect URIs, add the following URL:
+    http://127.0.0.1:5000/login/google/callback (for local testing)
+    https://your-hosted-site.com/login/google/callback (for your live site)
+    Click Create. Google will give you your Client ID and Client Secret. Keep these safe!
+
+
+Step 1: The Code - Configuration in Main.py
+We need to initialize authlib with your new Google credentials.
+# Add these imports at the top of Main.py
+from authlib.integrations.flask_client import OAuth
+import os
+
+# ... after app = Flask(...) ...
+
+# --- OAUTH SETUP ---
+oauth = OAuth(app)
+app.config['GOOGLE_CLIENT_ID'] = os.environ.get("GOOGLE_CLIENT_ID")
+app.config['GOOGLE_CLIENT_SECRET'] = os.environ.get("GOOGLE_CLIENT_SECRET")
+
+oauth.register(
+    name='google',
+    client_id=app.config['GOOGLE_CLIENT_ID'],
+    client_secret=app.config['GOOGLE_CLIENT_SECRET'],
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
+)
+```*Tip: For local testing, you can temporarily hardcode the ID and secret, but for your hosted site, you should set them as **Environment Variables** for security.*
+
+---
+
+### Step 2: The Code - New Routes for Google Login
+
+Add these two new routes to your `auth/auth_routes.py` file.
+
+```python
+# In auth/auth_routes.py
+
+# Import the oauth object from your main app file
+from Main import oauth # Or wherever you initialized it
+from models.user import User
+from models.subscription import Subscription
+from database import SessionLocal
+
+# --- GOOGLE LOGIN ROUTE ---
+@auth_bp.route("/login/google")
+def google_login():
+    redirect_uri = url_for('auth.google_callback', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+# --- GOOGLE CALLBACK ROUTE ---
+@auth_bp.route("/login/google/callback")
+def google_callback():
+    # 1. Get user info from Google
+    token = oauth.google.authorize_access_token()
+    user_info = token.get('userinfo')
+
+    if not user_info:
+        flash("Login with Google failed. Please try again.", "danger")
+        return redirect(url_for("auth.login"))
+
+    email = user_info['email'].lower()
+
+    db = SessionLocal()
+
+    # 2. Check if user already exists in your database
+    existing_user = db.query(User).filter(User.email == email).first()
+
+    if existing_user:
+        # User exists - just log them in
+        user = existing_user
+        # Optional: update their last login time
+        user.last_login = datetime.now(timezone.utc)
+        db.commit()
+    else:
+        # User is new - create an account for them
+        new_user = User(
+            email=email,
+            # No password_hash needed for Google users
+        )
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+
+        # Create a default trial subscription for the new user
+        subscription = Subscription(
+            user_id=new_user.id,
+            plan_type="trial",
+            is_trial_active=True
+        )
+        db.add(subscription)
+        db.commit()
+
+        user = new_user
+
+    # 3. Set up the user session
+    subscription = db.query(Subscription).filter(Subscription.user_id == user.id).first()
+
+    session.clear()
+    session['user_id'] = user.id
+    session['user_email'] = user.email
+    session['user_plan'] = subscription.plan_type if subscription else 'trial'
+
+    db.close()
+
+    flash("Successfully logged in with Google!", "success")
+    return redirect("/menu")
+
+
+Step 3: The Frontend - Add the Button
+Now, add the "Sign In with Google" button to your template/login.html page.
+<!-- In login.html, maybe above or below your existing form -->
+
+<div class="google-login-container">
+    <a href="{{ url_for('auth.google_login') }}" class="btn-google">
+        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
+        Sign in with Google
+    </a>
+</div>
+
+<div class="divider">
+    <span>OR</span>
+</div>
+
+<!-- Your existing email/password form here -->
+
+And add this CSS to your stylesheet to make it look professional:
+
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+    background-color: #ffffff;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn-google:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-google img {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+}
+
+.divider {
+    text-align: center;
+    margin: 20px 0;
+    color: #94a3b8;
+}```
+
+### Summary of the Logic:
+1.  User clicks the "Sign in with Google" button.
+2.  They are sent to Google to approve.
+3.  Google sends them back to your `/login/google/callback` URL.
+4.  Your app checks if their email exists.
+    *   If **yes**, it logs them in as that user.
+    *   If **no**, it creates a new user and a new trial subscription for them.
+5.  It sets the session and redirects them to the menu, fully logged in.
+
+How does this plan sound for implementing Google Sign-In?
+
+
+======================
+
+Excellent! That's the perfect approach. OAuth can be a little tricky the first time, but authlib makes it very logical. Take your time to study the flow—it will be a great skill to have.
+As you implement it, here are 3 key things to watch out for (these are the most common issues developers run into):
+
+1. The "Redirect URI Mismatch" Error
+If you get this error from Google, it means the URL in your Google Cloud Console doesn't exactly match the one your Flask app is sending.
+The Fix: Make sure http://127.0.0.1:5000/login/google/callback is in the "Authorized redirect URIs" list in your Google project. Even a small difference like localhost vs 127.0.0.1 can cause this.
+
+2. Database Error for password_hash
+Your User model probably requires a password (password_hash = Column(String, nullable=False)). When a user signs up with Google, they don't have a password, so your database will throw an error.
+The Fix: You need to allow the password to be optional. In models/user.py, change the password column:
+
+
+# Change this:
+password_hash = Column(String(128), nullable=False)
+
+# To this (allow it to be NULL for Google users):
+password_hash = Column(String(128), nullable=True)
+
+3. Environment Variables for Client ID/Secret
+For local testing, you need a way for Flask to read your Google Client ID and Secret.
+The Fix: Create a file named .env in your project's root directory. Then install python-dotenv (pip install python-dotenv).
+Your .env file:
+
+GOOGLE_CLIENT_ID="your-id-from-google.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="your-secret-from-google"
+FLASK_SECRET_KEY="a-new-random-secret-key"
+
+Then, at the very top of Main.py, add this to load the variables:
+from dotenv import load_dotenv
+load_dotenv()

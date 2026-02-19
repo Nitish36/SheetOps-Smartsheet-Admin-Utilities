@@ -2,6 +2,8 @@ Yet to add
 Users who are in trail should convert to paid plan. Incase they already have created email then they
 should just login and update their tier (VV Imp)
 
+Add the google auth
+
 Add the enterprise code to the website
 
 Add the progress theme for all the endpoints
@@ -9,3 +11,11 @@ Add the progress theme for all the endpoints
 Check on the flash message since its shown to the left
 
 Make it responsive for screen 1920*1080
+
+Inbuilt dashboard so that when one uploads the csv it will show the visuals
+
+Try to see if its possible to add looker studio to this dashboard under admin view
+
+
+Email: admin@sheetops.com
+Password: Nitish@y2k

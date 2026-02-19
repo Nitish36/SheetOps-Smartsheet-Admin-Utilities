@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, send_file, session, redirect, flash
+from flask import Flask, request, render_template, send_file, session, redirect, flash, url_for
 from sqlalchemy import func
 import requests
 import pandas as pd
@@ -10,7 +10,7 @@ from datetime import datetime
 from database import SessionLocal
 from models.user import User
 from models.subscription import Subscription
-from auth.security import login_required
+from auth.security import login_required, check_trial_status
 from scripts.workspace import get_workspace
 from scripts.sheets import get_sheets
 from scripts.dashboard import get_dashboard
@@ -77,6 +77,7 @@ def fetch_home():
 
 @app.route("/menu", methods=["GET","POST"])
 @login_required
+@check_trial_status
 def fetch_menu():
     error = None
     return render_template("menu.html")
@@ -84,6 +85,7 @@ def fetch_menu():
 # Route to get group data
 @app.route("/groups", methods=["GET", "POST"])
 @login_required
+@check_trial_status
 def fetch_groups():
     if request.method == "POST":
         api_key = request.form.get("api_key")
@@ -138,6 +140,7 @@ def fetch_groups():
 # Route to get user data
 @app.route("/users", methods = ["GET","POST"])
 @login_required
+@check_trial_status
 def fetch_users():
     error = None
 
@@ -185,6 +188,7 @@ def fetch_users():
 
 @app.route("/sheets", methods=["GET", "POST"])
 @login_required
+@check_trial_status
 def fetch_sheets():
     if request.method == "POST":
         api_key = request.form.get("api_key")
@@ -233,6 +237,7 @@ def fetch_sheets():
 
 @app.route("/reports", methods=["GET","POST"])
 @login_required
+@check_trial_status
 def fetch_reports():
     error = None
     if request.method == "POST":
@@ -276,6 +281,7 @@ def fetch_reports():
 
 @app.route("/webhooks", methods=["GET","POST"])
 @login_required
+@check_trial_status
 def fetch_webhooks():
     error = None
     if request.method == "POST":
@@ -319,6 +325,7 @@ def fetch_webhooks():
 
 @app.route("/dashboards", methods=["GET","POST"])
 @login_required
+@check_trial_status
 def fetch_dashboards():
     error = None
     if request.method == "POST":
@@ -363,6 +370,7 @@ def fetch_dashboards():
 
 @app.route("/contacts", methods=["GET", "POST"])
 @login_required
+@check_trial_status
 def fetch_contacts():
     if request.method == "POST":
         api_key = request.form.get("api_key")
@@ -404,6 +412,7 @@ def fetch_contacts():
 
 @app.route("/workspaces", methods=["GET","POST"])
 @login_required
+@check_trial_status
 def fetch_workspace():
     error = None
     if request.method == "POST":
@@ -601,6 +610,39 @@ def user_dashboard():
     db.close()
     return render_template("usage.html", labels=labels, values=values, events=recent_events)
 
+
+# In Main.py
+
+@app.route("/upgrade-plan", methods=["POST"])
+@login_required
+def upgrade_plan():
+    new_plan = request.form.get("plan")
+    user_id = session.get("user_id")
+
+    # Ensure plan is a valid option
+    if new_plan not in ['pro', 'enterprise']:
+        flash("Invalid plan selected.", "danger")
+        return redirect(url_for('fetch_pricing'))
+
+    db = SessionLocal()
+    sub = db.query(Subscription).filter(Subscription.user_id == user_id).first()
+
+    if sub:
+        # Update their plan
+        sub.plan_type = new_plan
+        sub.is_trial_active = False  # Ensure trial is marked as off
+        db.commit()
+
+        # IMPORTANT: Update the session to reflect the new plan
+        session['user_plan'] = new_plan
+
+        flash(f"Successfully upgraded to the {new_plan.title()} plan! Welcome.", "success")
+        db.close()
+        return redirect("/menu")
+
+    db.close()
+    flash("Could not find your subscription. Please contact support.", "danger")
+    return redirect(url_for('fetch_pricing'))
 
 if __name__ == "__main__":
     app.run(debug=True)

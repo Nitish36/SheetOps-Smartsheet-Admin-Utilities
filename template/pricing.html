@@ -17,6 +17,9 @@
 
   <div class="pricing-cards">
 
+    <!-- ======================= TRIAL CARD ======================= -->
+    <!-- This card is HIDDEN if the user is an expired trial user -->
+    {% if not ('user_id' in session and session['user_plan'] == 'trial') %}
     <div class="pricing-card">
       <h3>Trial</h3>
       <p class="price">$0</p>
@@ -27,10 +30,13 @@
       </ul>
       <form method="POST" action="/select-plan">
         <input type="hidden" name="plan" value="trial">
-        <a href="/register"><button class="btn-outline">Register For Free Trial</button></a>
+        <!-- FIX: Removed the <a> tag around the button -->
+        <button type="submit" class="btn-outline">Register For Free Trial</button>
       </form>
     </div>
+    {% endif %}
 
+    <!-- ======================= PRO CARD ======================= -->
     <div class="pricing-card featured">
       <h3>Pro</h3>
       <p class="price">$15</p>
@@ -41,12 +47,24 @@
       </ul>
       <button class="btn-primary">Contact Us</button>
       <br><br>
-      <form method="POST" action="/select-plan">
-        <input type="hidden" name="plan" value="pro">
-        <button type="submit" class="btn-outline">Register</button>
-      </form>
+      
+      <!-- ** DYNAMIC BUTTON LOGIC ** -->
+      {% if 'user_id' in session and session['user_plan'] == 'trial' %}
+          <!-- User is an expired trial, show UPGRADE button -->
+          <form method="POST" action="/upgrade-plan">
+              <input type="hidden" name="plan" value="pro">
+              <button type="submit" class="btn-outline">Upgrade to Pro</button>
+          </form>
+      {% else %}
+          <!-- New visitor, show REGISTER button -->
+          <form method="POST" action="/select-plan">
+              <input type="hidden" name="plan" value="pro">
+              <button type="submit" class="btn-outline">Register</button>
+          </form>
+      {% endif %}
     </div>
 
+    <!-- ======================= ENTERPRISE CARD ======================= -->
     <div class="pricing-card">
       <h3>Enterprise</h3>
       <p class="price">$40</p>
@@ -57,10 +75,21 @@
       </ul>
       <button class="btn-outline">Contact Us</button>
       <br><br>
-      <form method="POST" action="/select-plan">
-        <input type="hidden" name="plan" value="enterprise">
-        <button type="submit" class="btn-outline">Register</button>
-      </form>
+
+      <!-- ** DYNAMIC BUTTON LOGIC ** -->
+      {% if 'user_id' in session and session['user_plan'] == 'trial' %}
+          <!-- User is an expired trial, show UPGRADE button -->
+          <form method="POST" action="/upgrade-plan">
+              <input type="hidden" name="plan" value="enterprise">
+              <button type="submit" class="btn-outline">Upgrade to Enterprise</button>
+          </form>
+      {% else %}
+          <!-- New visitor, show REGISTER button -->
+          <form method="POST" action="/select-plan">
+              <input type="hidden" name="plan" value="enterprise">
+              <button type="submit" class="btn-outline">Register</button>
+          </form>
+      {% endif %}
     </div>
 
   </div>

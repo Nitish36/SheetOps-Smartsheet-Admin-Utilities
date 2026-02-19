@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from database import SessionLocal
 from models.user import User
 from models.subscription import Subscription
-from auth.security import hash_password, verify_password
+from auth.security import hash_password, verify_password, check_trial_status
 from datetime import datetime, timezone
 
 auth_bp = Blueprint("auth", __name__)
@@ -79,7 +79,7 @@ def login():
         if not user or not verify_password(password, user.password_hash):
             db.close()
             flash("Invalid email or password", "danger")
-            return render_template("login.html")
+            return redirect(url_for("auth.login"))
 
 
         # 3️⃣ Fetch subscription
@@ -87,40 +87,19 @@ def login():
             Subscription.user_id == user.id
         ).first()
 
-        if not subscription:
-            db.close()
-            return "Subscription not found", 403
-
-        # 4️⃣ Trial validation
-        user_plan = subscription.plan_type
-
-        if user_plan == "trial":
-            trial_end = subscription.trial_end
-
-            # Make trial_end timezone-aware if it is naive
-            if trial_end and trial_end.tzinfo is None:
-                trial_end = trial_end.replace(tzinfo=timezone.utc)
-
-            if trial_end and trial_end < datetime.now(timezone.utc):
-                subscription.is_trial_active = False
-                db.commit()
-                db.close()
-                return "Trial expired", 403
-
-        # 5️⃣ Update last login
         user.last_login = datetime.now(timezone.utc)
         db.commit()
 
-        # 6️⃣ Session setup
-
+        # Session setup
         session.clear()
         session["user_id"] = user.id
         session["user_email"] = user.email
-        session["user_plan"] = user_plan
-        flash("Logged in successfully!", "success")
+        session["user_plan"] = subscription.plan_type if subscription else 'trial'
+
         db.close()
 
-        return redirect("/menu")
+        flash("Logged in successfully!", "info")
+        return redirect("/menu")  # <-- Now it redirects to /menu
 
     return render_template("login.html")
 
