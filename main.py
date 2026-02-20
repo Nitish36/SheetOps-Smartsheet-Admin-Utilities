@@ -41,6 +41,8 @@ app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY", "sheetops-default-
 
 app.register_blueprint(auth_bp)
 
+APP_VERSION = "4.0.0 beta"
+
 GROUPS_URL = "https://api.smartsheet.com/2.0/groups"
 USERS_URL = "https://api.smartsheet.com/2.0/users"
 SHEETS_URL = "https://api.smartsheet.com/2.0/sheets"
@@ -49,6 +51,10 @@ WORKSPACE_URL = "https://api.smartsheet.com/2.0/workspaces"
 WEBHOOK_URL = "https://api.smartsheet.com/2.0/webhooks"
 DASHBOARD_URL = "https://api.smartsheet.com/2.0/sights"
 BASE_URL = "https://api.smartsheet.com/2.0/contacts"
+
+@app.context_processor
+def inject_app_version():
+    return dict(app_version=APP_VERSION)
 
 def init_progress():
     session["progress"] = []
