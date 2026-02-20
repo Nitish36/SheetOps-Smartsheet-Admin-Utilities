@@ -88,6 +88,29 @@ def fetch_menu():
     error = None
     return render_template("menu.html")
 
+
+@app.route("/roadmap")
+def fetch_roadmap():
+    # You can move this to a database later, but for now, a list works great.
+    roadmap_data = {
+        "Planned": [
+            {"title": "Google Drive Integration", "desc": "Export Smartsheet data directly to Google Sheets."},
+            {"title": "Custom Webhook Triggers", "desc": "Trigger exports based on Smartsheet row changes."},
+            {"title": "PDF Report Generation", "desc": "Visual PDF summaries for workspace audits."}
+        ],
+        "In Progress": [
+            {"title": "Sign in with Google", "desc": "Password-less authentication for enterprise users."},
+            {"title": "Stripe Payment Gateway", "desc": "Secure automated billing and plan upgrades."},
+            {"title": "User Usage Dashboard", "desc": "Visual analytics for personal API activity."}
+        ],
+        "Completed": [
+            {"title": "v4.0.0 UI Overhaul", "desc": "Modern SaaS-style dark theme and responsiveness."},
+            {"title": "Enterprise Sheet Metadata", "desc": "Full extraction of workspace paths and owners."},
+            {"title": "Admin Audit Suite", "desc": "Central control panel for managing all app users."}
+        ]
+    }
+    return render_template("roadmap.html", roadmap=roadmap_data)
+
 # Route to get group data
 @app.route("/groups", methods=["GET", "POST"])
 @login_required

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Roadmap | SheetOps</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='roadmap.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="roadmap-container">
+        <header class="roadmap-header">
+            <a href="/" class="back-link">← Back to Home</a>
+            <h1>The SheetOps Roadmap</h1>
+            <p>Transparency into what we're building and where we're headed.</p>
+        </header>
+
+        <div class="roadmap-grid">
+            <!-- Planned Column -->
+            <div class="roadmap-column">
+                <h3 class="status-planned">Planned</h3>
+                {% for item in roadmap['Planned'] %}
+                <div class="roadmap-card">
+                    <h4>{{ item.title }}</h4>
+                    <p>{{ item.desc }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- In Progress Column -->
+            <div class="roadmap-column">
+                <h3 class="status-progress">In Progress</h3>
+                {% for item in roadmap['In Progress'] %}
+                <div class="roadmap-card">
+                    <div class="pulse-icon"></div>
+                    <h4>{{ item.title }}</h4>
+                    <p>{{ item.desc }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Completed Column -->
+            <div class="roadmap-column">
+                <h3 class="status-done">Completed</h3>
+                {% for item in roadmap['Completed'] %}
+                <div class="roadmap-card done">
+                    <h4>{{ item.title }} <span class="check">✓</span></h4>
+                    <p>{{ item.desc }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
