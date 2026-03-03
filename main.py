@@ -269,6 +269,80 @@ def fetch_sheets():
 
     return render_template("sheets.html")
 
+@app.route("/sheets_detailed", methods=["GET","POST"])
+@login_required
+@check_trial_status
+def fetch_sheets_detailed():
+    error = None
+    if request.method == "POST":
+        api_key = request.form.get("api_key")
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        response = requests.get(SHEETS_URL, headers=headers, verify=False)
+
+        if response.status_code != 200:
+            return "Invalid API key or API error", 400
+
+        user_plan = session.get("user_plan", "trial")
+        df = []
+
+        if user_plan == "enterprise":
+            data = get_detailed_sheets(SHEETS_URL, headers)
+            df = pd.DataFrame(data)
+
+        # Create CSV
+        output = BytesIO()
+        df.to_csv(output, index=False)
+        output.seek(0)
+
+        return send_file(
+            output,
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name=f"smartsheet_sheets_detailed_{user_plan}.csv"
+        )
+
+    return render_template("sheets_detailed.html")
+
+@app.route("/sheets_publish", methods=["GET","POST"])
+@login_required
+@check_trial_status
+def fetch_sheets_publish():
+    error = None
+    if request.method == "POST":
+        api_key = request.form.get("api_key")
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        response = requests.get(SHEETS_URL, headers=headers, verify=False)
+
+        if response.status_code != 200:
+            return "Invalid API key or API error", 400
+
+        user_plan = session.get("user_plan", "trial")
+        df = []
+
+        if user_plan == "enterprise":
+            data = get_published_sheets(SHEETS_URL, headers)
+            df = pd.DataFrame(data)
+
+        # Create CSV
+        output = BytesIO()
+        df.to_csv(output, index=False)
+        output.seek(0)
+
+        return send_file(
+            output,
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name=f"smartsheet_sheets_publish_{user_plan}.csv"
+        )
+
+    return render_template("sheets_publish.html")
+
 
 @app.route("/reports", methods=["GET","POST"])
 @login_required
