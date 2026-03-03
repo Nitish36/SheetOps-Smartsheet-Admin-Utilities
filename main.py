@@ -197,7 +197,8 @@ def fetch_users():
             df = pd.DataFrame(data)
 
         elif user_plan == "enterprise":
-            pass  # full data (no limit)
+            data = get_users(USERS_URL, headers)
+            df = pd.DataFrame(data)
 
         # Create CSV
         update_progress("Preparing CSV file")
@@ -247,7 +248,8 @@ def fetch_sheets():
             df = pd.DataFrame(data)
 
         elif user_plan == "enterprise":
-            pass  # full data (no limit)
+            data = get_sheets(SHEETS_URL, headers)
+            df = pd.DataFrame(data)
 
         # Create CSV
         output = BytesIO()
@@ -292,7 +294,8 @@ def fetch_reports():
             df = pd.DataFrame(data)
 
         elif user_plan == "enterprise":
-            pass  # full data (no limit)
+            data = get_reports(REPORTS_URL, headers)
+            df = pd.DataFrame(data)
 
         # Create CSV
         output = BytesIO()
@@ -336,7 +339,8 @@ def fetch_webhooks():
             df = pd.DataFrame(data)
 
         elif user_plan == "enterprise":
-            pass  # full data (no limit)
+            data = get_webhooks(WEBHOOK_URL, headers)
+            df = pd.DataFrame(data)
 
         # Create CSV
         output = BytesIO()
@@ -380,7 +384,8 @@ def fetch_dashboards():
             df = pd.DataFrame(data)
 
         elif user_plan == "enterprise":
-            pass  # full data (no limit)
+            data = get_webhooks(WEBHOOK_URL, headers)
+            df = pd.DataFrame(data)
 
         # Create CSV
         output = BytesIO()
@@ -467,7 +472,8 @@ def fetch_workspace():
             df = pd.DataFrame(data)
 
         elif user_plan == "enterprise":
-            pass  # full data (no limit)
+            data = get_workspace(WORKSPACE_URL, headers)
+            df = pd.DataFrame(data)
 
         # Create CSV
         output = BytesIO()
