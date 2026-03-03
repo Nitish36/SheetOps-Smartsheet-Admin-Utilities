@@ -13,8 +13,12 @@ from models.subscription import Subscription
 from auth.security import login_required, check_trial_status
 from scripts.workspace import get_workspace
 from scripts.sheets import get_sheets
+from scripts.sheet_detailed import get_detailed_sheets
+from scripts.sheet_publish import get_published_sheets
 from scripts.dashboard import get_dashboard
+from scripts.dashboard_detailed import get_detailed_dashboards
 from scripts.report import get_reports
+from scripts.report_detailed import get_detailed_reports
 from scripts.groups import get_group_members,get_all_groups,build_group_dataframe
 from scripts.users import get_users
 from scripts.webhook import get_webhooks
@@ -311,6 +315,43 @@ def fetch_reports():
 
     return render_template("reports.html")
 
+@app.route("/reports_detailed", methods=["GET","POST"])
+@login_required
+@check_trial_status
+def fetch_reports_detailed():
+    error = None
+    if request.method == "POST":
+        api_key = request.form.get("api_key")
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        response = requests.get(REPORTS_URL, headers=headers, verify=False)
+
+        if response.status_code != 200:
+            return "Invalid API key or API error", 400
+
+        user_plan = session.get("user_plan", "trial")
+        df = []
+
+        if user_plan == "enterprise":
+            data = get_detailed_reports(REPORTS_URL, headers)
+            df = pd.DataFrame(data)
+
+        # Create CSV
+        output = BytesIO()
+        df.to_csv(output, index=False)
+        output.seek(0)
+
+        return send_file(
+            output,
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name=f"smartsheet_reports_detailed_{user_plan}.csv"
+        )
+
+    return render_template("reports_detailed.html")
+
 @app.route("/webhooks", methods=["GET","POST"])
 @login_required
 @check_trial_status
@@ -384,7 +425,7 @@ def fetch_dashboards():
             df = pd.DataFrame(data)
 
         elif user_plan == "enterprise":
-            data = get_webhooks(WEBHOOK_URL, headers)
+            data = get_dashboard(DASHBOARD_URL, headers)
             df = pd.DataFrame(data)
 
         # Create CSV
@@ -401,6 +442,42 @@ def fetch_dashboards():
 
     return render_template("dashboard.html")
 
+@app.route("/dashboards_detailed", methods=["GET","POST"])
+@login_required
+@check_trial_status
+def fetch_dashboards_detailed():
+    error = None
+    if request.method == "POST":
+        api_key = request.form.get("api_key")
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        response = requests.get(DASHBOARD_URL, headers=headers, verify=False)
+
+        if response.status_code != 200:
+            return "Invalid API key or API error", 400
+
+        user_plan = session.get("user_plan", "trial")
+        df = []
+
+        if user_plan == "enterprise":
+            data = get_detailed_dashboards(DASHBOARD_URL, headers)
+            df = pd.DataFrame(data)
+
+        # Create CSV
+        output = BytesIO()
+        df.to_csv(output, index=False)
+        output.seek(0)
+
+        return send_file(
+            output,
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name=f"smartsheet_dashboard_detailed_{user_plan}.csv"
+        )
+
+    return render_template("dashboard_detailed.html")
 
 @app.route("/contacts", methods=["GET", "POST"])
 @login_required
