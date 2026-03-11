@@ -7,7 +7,7 @@ import urllib3
 import secrets
 import os
 from datetime import datetime,date, timezone
-from database import SessionLocal
+from database import SessionLocal, engine, Base
 from models.user import User
 from models.subscription import Subscription
 from auth.security import login_required, check_trial_status
@@ -33,7 +33,9 @@ from trial_scripts.groups import build_trial_group_dataframe,get_all_trial_group
 from trial_scripts.contacts import get_trial_contact
 from auth.auth_routes import auth_bp
 from models.usage import UsageLog
+import psycopg2
 
+Base.metadata.create_all(bind=engine)
 urllib3.disable_warnings()
 
 def secret_key():
