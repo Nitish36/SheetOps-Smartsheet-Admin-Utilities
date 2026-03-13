@@ -34,7 +34,9 @@ from trial_scripts.contacts import get_trial_contact
 from auth.auth_routes import auth_bp
 from models.usage import UsageLog
 import psycopg2
+from authlib.integrations.flask_client import OAuth
 
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 Base.metadata.create_all(bind=engine)
 urllib3.disable_warnings()
 
@@ -44,6 +46,18 @@ def secret_key():
 
 app = Flask(__name__, template_folder='template')
 app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY", "sheetops-default-key")
+
+# --- OAUTH SETUP ---
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id=os.environ.get("GOOGLE_CLIENT_ID"),
+    client_secret=os.environ.get("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
+)
 
 app.register_blueprint(auth_bp)
 
@@ -865,6 +879,63 @@ def upgrade_plan():
     db.close()
     flash("Could not find your subscription. Please contact support.", "danger")
     return redirect(url_for('fetch_pricing'))
+
+
+@app.route('/login/google')
+def login_google():
+    # Use _external=True to generate an absolute URL
+    redirect_uri = url_for('authorize_google', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+@app.route('/login/google/callback')
+def authorize_google():
+    token = google.authorize_access_token()
+    user_info = token.get('userinfo')
+
+    if not user_info:
+        flash("Google login failed.", "danger")
+        return redirect('/login')
+
+    email = user_info['email'].lower()
+    db = SessionLocal()
+
+    # 1. Check if user exists
+    user = db.query(User).filter(User.email == email).first()
+
+    if not user:
+        # 2. Create new user if they don't exist
+        user = User(email=email, password_hash=None)
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+        # 3. Create initial trial subscription
+        from models.subscription import Subscription
+        from datetime import datetime, timedelta, timezone
+
+        new_sub = Subscription(
+            user_id=user.id,
+            plan_type='trial',
+            trial_start=datetime.now(timezone.utc),
+            trial_end=datetime.now(timezone.utc) + timedelta(days=7)
+        )
+        db.add(new_sub)
+        db.commit()
+
+    # 4. Set Session
+    session.clear()
+    session['user_id'] = user.id
+    session['user_email'] = user.email
+
+    # Get plan type for session
+    from models.subscription import Subscription
+    sub = db.query(Subscription).filter(Subscription.user_id == user.id).first()
+    session['user_plan'] = sub.plan_type if sub else 'trial'
+
+    db.close()
+    flash(f"Welcome back, {email}!", "success")
+    return redirect('/menu')
 
 if __name__ == "__main__":
     app.run(debug=True)

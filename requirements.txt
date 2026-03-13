@@ -6,3 +6,5 @@ SQLAlchemy
 Werkzeug
 python-dotenv
 psycopg2-binary
+authlib
+urllib3

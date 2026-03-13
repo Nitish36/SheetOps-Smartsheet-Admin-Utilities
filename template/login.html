@@ -39,6 +39,27 @@
         <span id="passwordError" class="error-message">Password is required</span>
 
         <button type="submit">Login</button>
+        <div style="margin-top: 25px; border-top: 1px solid #334155; padding-top: 20px; text-align: center;">
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;">Or continue with</p>
+            <a href="{{ url_for('login_google') }}" style="
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                background: white;
+                color: #1e293b;
+                padding: 10px 20px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: 600;
+                font-family: 'Montserrat', sans-serif;
+                gap: 10px;
+                transition: transform 0.2s;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="20px">
+                Sign in with Google
+            </a>
+        </div>
 
         <span class="cta">
           Don’t have an account?
