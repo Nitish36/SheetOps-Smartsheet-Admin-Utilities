@@ -2,32 +2,11 @@ import requests
 import urllib3
 import time
 from flask import session
-from database import SessionLocal
-from models.usage import UsageLog
+# Note: Removed SessionLocal and UsageLog imports as they are handled in smartsheet_utils
+from scripts.smartsheet_utils import fetch_smartsheet_inventory, update_progress, log_activity
 
 urllib3.disable_warnings()
 
-
-# --- Helper Functions ---
-
-def log_activity(user_id, endpoint, method):
-    try:
-        db = SessionLocal()
-        new_log = UsageLog(user_id=user_id, endpoint=endpoint, method=method)
-        db.add(new_log)
-        db.commit()
-        db.close()
-    except Exception as e:
-        print(f"Logging failed: {e}")
-
-
-def update_progress(message):
-    progress = session.get("progress", [])
-    progress.append(message)
-    session["progress"] = progress
-
-
-# --- Main Logic ---
 
 def get_detailed_dashboards(base_url, headers):
     """
@@ -35,45 +14,14 @@ def get_detailed_dashboards(base_url, headers):
     Step 2: Get details for each dashboard (widgets, layout, etc.)
     Step 3: Flatten into rows (One row per Widget)
     """
-    all_dashboards_summary = []
+    # 1. Fetch the inventory (Sights)
+    # Changed label to "dashboards" for the progress bar
+    all_dashboards_summary = fetch_smartsheet_inventory(base_url, headers, "dashboards")
+
     final_data = []
-
     user_id = session.get("user_id")
-    page = 1
-    page_size = 100
 
-    # --- PHASE 1: Get the Inventory ---
-    update_progress("Step 1/2: Fetching dashboard inventory...")
-
-    while True:
-        params = {
-            "page": page,
-            "pageSize": page_size
-        }
-
-        # 1. API Call (List Dashboards)
-        response = requests.get(base_url, headers=headers, params=params, verify=False)
-
-        # 2. Log Activity
-        log_activity(user_id, base_url, "GET")
-
-        response.raise_for_status()
-        data = response.json()
-        batch = data.get("data", [])
-
-        if not batch:
-            break
-
-        all_dashboards_summary.extend(batch)
-        update_progress(f"Found {len(all_dashboards_summary)} dashboards so far...")
-
-        if page >= data.get("totalPages", 0):
-            break
-
-        page += 1
-        time.sleep(0.2)
-
-    # --- PHASE 2: Get Detailed Metadata & Flatten ---
+    # 2. Define the total count for the progress bar
     total_dashboards = len(all_dashboards_summary)
     update_progress(f"Step 2/2: Extracting details for {total_dashboards} dashboards...")
 
@@ -87,13 +35,13 @@ def get_detailed_dashboards(base_url, headers):
         try:
             url = f"{base_url}/{sight_id}"
             # include=source handles the source.id/type fields
-            # level=2 or 4 ensures we get widget data
+            # level=4 ensures we get widget data
             params = {"include": "source", "level": 4}
 
-            # 1. API Call
+            # API Call
             response = requests.get(url, headers=headers, params=params, verify=False)
 
-            # 2. Log Activity
+            # Log Activity
             log_activity(user_id, url, "GET")
 
             if response.status_code != 200:
@@ -115,10 +63,8 @@ def get_detailed_dashboards(base_url, headers):
                 "backgroundColor": detail.get("backgroundColor"),
                 "defaultWidgetBackgroundColor": detail.get("defaultWidgetBackgroundColor"),
                 "permalink": detail.get("permalink"),
-                # Source info
                 "source.id": detail.get("source", {}).get("id") if detail.get("source") else None,
                 "source.type": detail.get("source", {}).get("type") if detail.get("source") else None,
-                # Workspace info
                 "workspace.id": workspace.get("id") if workspace else None,
                 "workspace.name": workspace.get("name") if workspace else None,
                 "createdAt": detail.get("createdAt"),
@@ -131,10 +77,9 @@ def get_detailed_dashboards(base_url, headers):
                     row = row_base.copy()
                     row["widget.id"] = w.get("id")
                     row["widget.type"] = w.get("type")
-                    # You can add more widget details here if needed (contents, title, etc)
                     final_data.append(row)
             else:
-                # If no widgets, add one row with empty widget info so the dashboard still appears in report
+                # If no widgets, add one row with empty widget info
                 row = row_base.copy()
                 row["widget.id"] = None
                 row["widget.type"] = None

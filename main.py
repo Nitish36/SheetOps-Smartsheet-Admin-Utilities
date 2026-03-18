@@ -119,14 +119,15 @@ def fetch_roadmap():
             {"title": "PDF Report Generation", "desc": "Visual PDF summaries for workspace audits."}
         ],
         "In Progress": [
-            {"title": "Sign in with Google", "desc": "Password-less authentication for enterprise users."},
             {"title": "Stripe Payment Gateway", "desc": "Secure automated billing and plan upgrades."},
-            {"title": "User Usage Dashboard", "desc": "Visual analytics for personal API activity."}
+            {"title": "User Usage Dashboard", "desc": "Visual analytics for personal API activity."},
+            {"title": "Internal Ticketing System", "desc": "Ticketing system to allow users to raise complaints and suggestions."},
         ],
         "Completed": [
             {"title": "v4.0.0 UI Overhaul", "desc": "Modern SaaS-style dark theme and responsiveness."},
             {"title": "Enterprise Sheet Metadata", "desc": "Full extraction of workspace paths and owners."},
-            {"title": "Admin Audit Suite", "desc": "Central control panel for managing all app users."}
+            {"title": "Admin Audit Suite", "desc": "Central control panel for managing all app users."},
+            {"title": "Sign in with Google", "desc":  "Password-less authentication for enterprise users."},
         ]
     }
     return render_template("roadmap.html", roadmap=roadmap_data)

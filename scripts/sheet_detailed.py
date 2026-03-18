@@ -4,27 +4,9 @@ import time
 from flask import session
 from database import SessionLocal
 from models.usage import UsageLog
-
+from scripts.smartsheet_utils import fetch_smartsheet_inventory, update_progress, log_activity
 urllib3.disable_warnings()
 
-
-# --- Helper Functions ---
-
-def log_activity(user_id, endpoint, method):
-    try:
-        db = SessionLocal()
-        new_log = UsageLog(user_id=user_id, endpoint=endpoint, method=method)
-        db.add(new_log)
-        db.commit()
-        db.close()
-    except Exception as e:
-        print(f"Logging failed: {e}")
-
-
-def update_progress(message):
-    progress = session.get("progress", [])
-    progress.append(message)
-    session["progress"] = progress
 
 
 # --- Main Logic ---
@@ -34,44 +16,10 @@ def get_detailed_sheets(base_url, headers):
     Step 1: Get high-level list of all sheets
     Step 2: Loop through every sheet to get detailed metadata
     """
-    all_sheets_summary = []
-    final_results = []
-
     user_id = session.get("user_id")
-    page = 1
-    page_size = 200  # Max allowed by Smartsheet
+    all_sheets_summary = fetch_smartsheet_inventory(base_url, headers, "sheets")
 
-    # --- PHASE 1: Get the Inventory (List of IDs) ---
-    update_progress("Step 1/2: Fetching sheet inventory...")
-
-    while True:
-        params = {
-            "page": page,
-            "pageSize": page_size
-        }
-
-        # 1. API Call
-        response = requests.get(base_url, headers=headers, params=params, verify=False)
-
-        # 2. Log Activity
-        log_activity(user_id, base_url, "GET")
-
-        response.raise_for_status()
-        data = response.json()
-        batch = data.get("data", [])
-
-        if not batch:
-            break
-
-        all_sheets_summary.extend(batch)
-        update_progress(f"Found {len(all_sheets_summary)} sheets so far...")
-
-        if page >= data.get("totalPages", 0):
-            break
-
-        page += 1
-        time.sleep(0.2)  # Polite delay
-
+    final_results = []
     # --- PHASE 2: Get Detailed Metadata ---
     total_sheets = len(all_sheets_summary)
     update_progress(f"Step 2/2: Extracting details for {total_sheets} sheets...")

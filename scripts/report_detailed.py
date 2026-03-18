@@ -2,29 +2,10 @@ import requests
 import urllib3
 import time
 from flask import session
-from database import SessionLocal
-from models.usage import UsageLog
+# Note: Removed SessionLocal and UsageLog imports as they are used inside smartsheet_utils
+from scripts.smartsheet_utils import fetch_smartsheet_inventory, update_progress, log_activity
 
 urllib3.disable_warnings()
-
-
-# --- Helper Functions ---
-
-def log_activity(user_id, endpoint, method):
-    try:
-        db = SessionLocal()
-        new_log = UsageLog(user_id=user_id, endpoint=endpoint, method=method)
-        db.add(new_log)
-        db.commit()
-        db.close()
-    except Exception as e:
-        print(f"Logging failed: {e}")
-
-
-def update_progress(message):
-    progress = session.get("progress", [])
-    progress.append(message)
-    session["progress"] = progress
 
 
 # --- Main Logic ---
@@ -35,43 +16,11 @@ def get_detailed_reports(base_url, headers):
     Step 2: Get details for each report
     Step 3: Flatten 'Source Sheets' and 'Scope' into a single row structure
     """
-    all_reports_summary = []
+    # FIX: Changed label from "sheets" to "reports"
+    all_reports_summary = fetch_smartsheet_inventory(base_url, headers, "reports")
+
     final_data = []
-
     user_id = session.get("user_id")
-    page = 1
-    page_size = 100
-
-    # --- PHASE 1: Get the Inventory ---
-    update_progress("Step 1/2: Fetching report inventory...")
-
-    while True:
-        params = {
-            "page": page,
-            "pageSize": page_size
-        }
-
-        # 1. API Call
-        response = requests.get(base_url, headers=headers, params=params, verify=False)
-
-        # 2. Log Activity
-        log_activity(user_id, base_url, "GET")
-
-        response.raise_for_status()
-        data = response.json()
-        batch = data.get("data", [])
-
-        if not batch:
-            break
-
-        all_reports_summary.extend(batch)
-        update_progress(f"Found {len(all_reports_summary)} reports so far...")
-
-        if page >= data.get("totalPages", 0):
-            break
-
-        page += 1
-        time.sleep(0.2)
 
     # --- PHASE 2: Get Detailed Metadata & Flatten ---
     total_reports = len(all_reports_summary)
@@ -102,7 +51,7 @@ def get_detailed_reports(base_url, headers):
 
             detail = response.json()
 
-            # --- FLATTENING LOGIC (Preserved from your script) ---
+            # --- FLATTENING LOGIC ---
             scope_sheets = detail.get("scope", {}).get("sheets", [])
             scope_workspaces = detail.get("scope", {}).get("workspaces", [])
             source_sheets = detail.get("sourceSheets", [])
@@ -127,11 +76,9 @@ def get_detailed_reports(base_url, headers):
                 "scope.workspaces[].permalink": scope_workspaces[0].get("permalink") if scope_workspaces else None,
             }
 
-            # If multiple source sheets, create a row for each
             if source_sheets:
                 for i, ss in enumerate(source_sheets):
                     row = row_base.copy()
-                    # Add Source Sheet Info
                     row["sourceSheets[].id"] = ss.get("id")
                     row["sourceSheets[].accessLevel"] = ss.get("accessLevel")
                     row["sourceSheets[].createdAt"] = ss.get("createdAt")
@@ -146,7 +93,6 @@ def get_detailed_reports(base_url, headers):
                     row["sourceSheets[].userPermissions.summaryPermissions"] = ss.get("userPermissions", {}).get(
                         "summaryPermissions")
 
-                    # Add Matching Scope Sheet Info (if exists)
                     if i < len(scope_sheets):
                         sc = scope_sheets[i]
                         row["scope.sheets[].id"] = sc.get("id")
@@ -161,7 +107,6 @@ def get_detailed_reports(base_url, headers):
 
                     final_data.append(row)
             else:
-                # No source sheets, just add base row
                 final_data.append(row_base)
 
             time.sleep(0.1)
