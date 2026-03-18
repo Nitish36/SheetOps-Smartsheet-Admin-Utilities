@@ -101,6 +101,19 @@ def fetch_home():
     error = None
     return render_template("index.html")
 
+
+@app.route("/support")
+@login_required
+def fetch_support():
+    # 1. Your Smartsheet Form URL (Published)
+    # Add query parameters to pre-fill (Ensure field names match your form exactly)
+    form_url = "https://app.smartsheet.com/b/form/019cd20fb2177df19037e05727082771"
+
+    # 2. Your Smartsheet Dashboard URL (Published)
+    dashboard_url = "https://app.smartsheet.com/b/publish?EQBCT=ce687d7f3ac3404b93fbcdf600da42b7"
+
+    return render_template("support.html", form_url=form_url, dashboard_url=dashboard_url)
+
 @app.route("/menu", methods=["GET","POST"])
 @login_required
 @check_trial_status
