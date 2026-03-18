@@ -28,132 +28,49 @@
 </header>
 
 <!-- About Intro -->
-<section class="about-features-wrapper">
-
-  <!-- LEFT: About -->
-  <div class="about-left">
-    <h2>About SheetOps</h2>
-    <p>
-      SheetOps is a lightweight internal utility built to simplify Smartsheet
-      administrative operations.
-      <br><br>
-      It enables users to securely connect using an API key and extract
-      admin-level data in structured formats like CSV — without writing scripts
-      or dealing with complex setups.
-      <br><br>
-      The focus is on speed, clarity, and controlled access based on usage tiers.
-      <br><br>
-      We offers flexible pricing tiers designed to grow with your needs — Free, Pro, and Enterprise.
-      <br><br>
-      <ul class="about-left">
-        <li>The Free tier is perfect for getting started, allowing users to explore key features with 
-      access to up to 50 rows per feature.</li>
-        <li>The Pro tier unlocks complete organization-level data, 
-      enabling admins to gain full visibility across their Smartsheet environment without row 
-      limitations. For teams that need deep insights and complete control</li>
-      <li>The Enterprise tier 
-      provides unrestricted access to detailed data from individual sheets, reports, dashboards, 
-      and more — making it the most powerful option for advanced governance and large-scale 
-      operations.</li>
-      </ul>
-    </p>
-  </div>
-
-  <!-- RIGHT: Features -->
-  <div class="about-right">
-    <h2 class="section-title">Our Features</h2>
-
-    <div class="feature-grid">
-      <div class="feature-card">
-        <h3>Group Management</h3>
-        <p>Export groups and members with access-level details.</p>
-        <div class="status-check">
-           <div class="popup">✓
-            <span class="popuptext">Feature Added</span>
-  </div>
-           
-        </div>
-      </div>
-
-      <div class="feature-card">
-        <h3>User & Access Data</h3>
-        <p>Retrieve user permissions and admin visibility.</p>
-        <div class="status-check">
-            <div class="popup"> ✓
-            <span class="popuptext" id="myPopup">Feature Added</span>
-             </div>
-        </div>
-      </div>
-
-      <div class="feature-card">
-        <h3>Sheet Metadata</h3>
-        <p>Fetch sheet ownership and configuration data.</p>
-        <div class="status-check">
-            <div class="popup"> ✓
-            <span class="popuptext" id="myPopup">Feature Added</span>
-             </div>
-        </div>
-      </div>
-
-      <div class="feature-card">
-        <h3>Pagination Support</h3>
-        <p>Handles large org data automatically.</p>
-        <div class="status-check">
-            <div class="popup"> ✓
-            <span class="popuptext" id="myPopup">Feature Added</span>
-             </div>
-        </div>
-      </div>
-
-      <div class="feature-card">
-        <h3>Plan-Based Limits</h3>
-        <p>Trial, Pro, and Enterprise data controls.</p>
-        <div class="status-check">
-            <div class="popup"> ✓
-            <span class="popuptext" id="myPopup">Feature Added</span>
-             </div>
-        </div>
-      </div>
-
-      <div class="feature-card">
-        <h3>CSV & JSON Export</h3>
-        <p>Download clean, structured outputs.</p>
-        <div class="status-check">
-            <div class="popup"> ✓
-            <span class="popuptext" id="myPopup">Feature Added</span>
-             </div>
-        </div>
-      </div>
-
-      <div class="feature-card">
-        <h3>Dashboard Metrics</h3>
-        <p>Shows which user has visited the site & for how long they
-            have used the api key
-        </p>
-        <div class="status-pending">!
-        <span class="popuptext">Coming Soon</span>
-        </div>
-      </div>
-      <div class="feature-card">
-        <h3>Usage Stats</h3>
-        <p>Shows rows consumed, api calls made, remaining quota (meant for trial users)
-        </p>
-        <div class="status-pending">!
-        <span class="popuptext">Coming Soon</span>
-        </div>
-      </div>
-      <div class="feature-card">
-        <h3>Logging Data</h3>
-        <p>Shows who accessed what, which tier hit limits, error logged cleanly
-        </p>
-        <div class="status-pending">!
-        <span class="popuptext">Coming Soon</span>
-        </div>
-      </div>
+<div class="support-wrapper">
+    <div class="support-header">
+        <h1>Help & Support center</h1>
+        <p>Submit a request or track your existing tickets in real-time.</p>
     </div>
-  </div>
 
-</section>
+    <div class="support-tabs">
+        <button class="tab-btn active" onclick="switchTab(event, 'submit-form')">Submit a Ticket</button>
+        <button class="tab-btn" onclick="switchTab(event, 'status-dashboard')">Ticket Status Dashboard</button>
+    </div>
+
+    <div id="submit-form" class="tab-content active">
+        <div class="iframe-container">
+            <iframe src="{{ form_url }}" width="100%" height="700px" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <div id="status-dashboard" class="tab-content">
+        <div class="iframe-container">
+            <iframe src="{{ dashboard_url }}" width="100%" height="800px" frameborder="0"></iframe>
+        </div>
+    </div>
+</div>
+
+<script>
+function switchTab(evt, tabId) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tab-content");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+        tabcontent[i].classList.remove("active");
+    }
+    tablinks = document.getElementsByClassName("tab-btn");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].classList.remove("active");
+    }
+    document.getElementById(tabId).style.display = "block";
+    document.getElementById(tabId).classList.add("active");
+    evt.currentTarget.classList.add("active");
+}
+</script>
+
+
 <div class="app-footer">
         <span class="version-badge">v{{ app_version }}</span>
 </div>
