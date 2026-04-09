@@ -72,6 +72,16 @@ WEBHOOK_URL = "https://api.smartsheet.com/2.0/webhooks"
 DASHBOARD_URL = "https://api.smartsheet.com/2.0/sights"
 BASE_URL = "https://api.smartsheet.com/2.0/contacts"
 
+@app.errorhandler(404)
+def page_not_found(e):
+    # Note: We set the 404 status explicitly
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    # Note: We set the 500 status explicitly
+    return render_template('500.html'), 500
+
 @app.context_processor
 def inject_app_version():
     return dict(app_version=APP_VERSION)

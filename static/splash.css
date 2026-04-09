@@ -852,3 +852,75 @@ body {
     border: 1px solid rgba(56, 189, 248, 0.2);
     font-weight: 700;
 }
+
+/* --- Error Pages Styling --- */
+.error-container {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #0f172a; /* Deep Navy */
+    font-family: 'Montserrat', sans-serif;
+    text-align: center;
+    padding: 20px;
+}
+
+.error-box {
+    max-width: 500px;
+}
+
+.error-code {
+    font-size: 8rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, #0d9488 0%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+}
+
+.error-box h2 {
+    color: #f8fafc;
+    font-size: 2rem;
+    margin-top: 10px;
+}
+
+.error-box p {
+    color: #94a3b8;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin: 20px 0 30px 0;
+}
+
+.error-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* Reusing your existing button styles or these polished ones */
+.error-actions .btn-primary {
+    background: #0d9488;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.error-actions .btn-outline {
+    border: 1px solid #334155;
+    color: #cbd5e1;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.error-actions a:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
