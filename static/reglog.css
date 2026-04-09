@@ -216,16 +216,16 @@ button[type="submit"]:hover {
 
 /* Flash message styling */
 #flash-container {
-  position: fixed !important; 
-  top: 0 !important;          /* Stick directly to the very top edge */
-  left: 0 !important;
-  width: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  z-index: 10000 !important;  /* Higher than everything else */
-  pointer-events: none;
-  padding-top: 20px;         /* Add padding so it doesn't touch the browser edge */
+  position: fixed;    /* Takes it out of the flex centering */
+  top: 10px;          /* Distance from the very top */
+  left: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers it horizontally */
+  z-index: 9999;       /* Ensures it stays above everything else */
+  pointer-events: none; /* Prevents the container from blocking clicks below it */
 }
 
 .flash-message {
