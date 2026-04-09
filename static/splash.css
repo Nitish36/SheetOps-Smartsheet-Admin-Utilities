@@ -5,9 +5,19 @@
     font-family: "Montserrat", sans-serif;
 }
 
+.main-wrapper {
+    max-width: 1400px; /* The perfect width for 1080p screens */
+    margin: 0 auto;    /* Centers the entire block */
+    width: 100%;
+    position: relative;
+}
+
 body {
     background-color: #0f172a;
     color: #e5e7eb;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
 }
 
 /* Navbar */
@@ -82,6 +92,13 @@ body {
     /* The Left Side Color */
     background-color: #020617; 
     overflow: hidden;
+}
+.hero-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+    padding: 0 40px; /* Padding for when the screen is smaller than 1400px */
 }
 .hero-description {
     font-size: 1.15rem;
