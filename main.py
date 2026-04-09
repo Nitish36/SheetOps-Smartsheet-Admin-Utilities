@@ -76,6 +76,11 @@ BASE_URL = "https://api.smartsheet.com/2.0/contacts"
 def inject_app_version():
     return dict(app_version=APP_VERSION)
 
+def inject_globals():
+    return {
+        "current_year": datetime.now().year # This adds the year automatically
+    }
+
 def init_progress():
     session["progress"] = []
 
