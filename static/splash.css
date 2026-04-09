@@ -403,6 +403,67 @@ body {
   padding-top: 10px;
 }
 
+/* --- Standardized Back Navigation --- */
+.back-nav-container {
+    padding: 20px 0 0 20px;
+    position: absolute; /* Keeps it in the top corner without affecting page flow */
+    top: 0;
+    left: 0;
+    z-index: 100;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #94a3b8; /* Muted Slate */
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 10px;
+    background: rgba(30, 41, 59, 0.6); /* Translucent Navy */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px); /* Modern frosted glass effect */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-back .back-icon {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+}
+
+/* Hover Effects */
+.btn-back:hover {
+    color: #ffffff;
+    background: #0d9488; /* Teal brand color */
+    border-color: #38bdf8; /* Cyan accent */
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Move the arrow slightly to the left on hover */
+.btn-back:hover .back-icon {
+    transform: translateX(-5px);
+}
+
+/* Mobile Adjustment */
+@media (max-width: 768px) {
+    .back-nav-container {
+        position: relative; /* On mobile, let it push content down so it's easier to tap */
+        padding: 15px;
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+    }
+    
+    .btn-back {
+        width: auto;
+        padding: 8px 14px;
+    }
+}
+
 /* Splash Screen */
 /* Splash screen */
 #splash {
