@@ -23,10 +23,10 @@
           {% endfor %}
         {% endif %}
     {% endwith %}
-    <p class="plan">
+    <!--<p class="plan">
       Selected Plan:
       <strong>{{ session.get("user_plan", "trial") | capitalize }}</strong>
-    </p>
+    </p>-->
     <div class="login-box">
       <h2>Welcome back</h2>
       <form id="loginForm" method="POST" action="/login">
