@@ -924,3 +924,14 @@ body {
     transform: translateY(-2px);
     opacity: 0.9;
 }
+
+.plan-status {
+    color: #38bdf8; /* Cyan accent */
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: rgba(56, 189, 248, 0.1);
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+}
