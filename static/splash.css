@@ -447,6 +447,10 @@ body {
 .btn-back:hover .back-icon {
     transform: translateX(-5px);
 }
+.back-nav-container a{
+    text-decoration: none;
+}
+
 
 /* Mobile Adjustment */
 @media (max-width: 768px) {
