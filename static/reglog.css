@@ -217,7 +217,7 @@ button[type="submit"]:hover {
 /* Flash message styling */
 #flash-container {
   position: fixed;    /* Takes it out of the flex centering */
-  top: 30px;          /* Distance from the very top */
+  top: 10px;          /* Distance from the very top */
   left: 0;
   right: 0;
   width: 100%;
