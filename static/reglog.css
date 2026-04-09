@@ -6,14 +6,17 @@
 body {
   margin: 0;
   font-family: "Poppins", sans-serif;
+  background-color: #0f172a;
 }
 .container {
   display: flex;
   flex-wrap: wrap;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
   background-color: #0f172a;
+  padding: 20px;
   
 }
 .cta {
@@ -28,32 +31,36 @@ body {
 .register-box {
   background-color: #0f172a;
   color: #fff;
-  padding: 20px;
-  border-radius: 0px;
-  margin: 20px;
+  padding: 30px; /* Increased padding for better look */
+  border-radius: 8px; /* Added slight radius for v4 polish */
   width: 100%;
-  max-width: 400px;
-  border: 1px solid #fff;
+  max-width: 420px; /* Fixed width for consistency */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Softened border */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); /* Added depth */
+  z-index: 2;
 }
 
 .login-box h2,
 .register-box h2 {
   margin-top: 0;
+  margin-bottom: 20px;
   text-align: center;
   font-size: 1.5rem;
+  font-weight: 700;
 }
 
 form {
   display: flex;
   flex-direction: column;
   color: #fff;
+  gap: 15px;
 }
 
 label {
   margin-top: 10px;
   font-weight: 500;
   font-size: 1rem;
-  color: #fff;
+  color: #cbd5e1;
 }
 
 .help-text{
@@ -73,6 +80,11 @@ input[type="password"] {
   width: 100%;
 }
 
+input:focus {
+  outline: none;
+  border-color: #38bdf8; /* Blue highlight on focus */
+}
+
 button[type="submit"] {
   background-color: #4caf50;
   color: #fff;
@@ -84,6 +96,9 @@ button[type="submit"] {
   width: 100%;
   margin: 20px 0;
 }
+
+
+
 button[type="redirect"] {
   background-color: #4caf50;
   color: #fff;
@@ -189,10 +204,14 @@ button[type="submit"]:hover {
 }
 
 .container .plan {
-  margin-bottom: -60px;
+  margin-bottom: 20px;
   text-align: center;
-  width: 80%;
-  color: #fff;
+  width: 100%;
+  max-width: 400px;
+  color: #38bdf8;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* Flash message styling */
