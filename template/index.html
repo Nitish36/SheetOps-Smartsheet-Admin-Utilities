@@ -27,10 +27,7 @@
         <a href="/">Home</a>
         <a href="/about">About</a>
         <a href="/roadmap">Roadmap</a>
-        {% if session.get('user_plan') in ['pro', 'enterprise'] %}
-        <!-- Show status instead of pricing -->
-        <li class="plan-status">Plan: {{ session['user_plan']|title }}</li>
-        {% else %}
+        {% if session.get('user_plan') not in ['pro', 'enterprise'] %}
         <!-- Show pricing for everyone else -->
         <li><a href="/pricing">Pricing</a></li>
         {% endif %}
