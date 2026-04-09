@@ -748,3 +748,42 @@ body {
     .tab-content.active { display: block; }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.app-footer {
+    width: 100%;
+    padding: 30px 20px;
+    margin-top: 50px; /* Space above the footer */
+    border-top: 1px solid rgba(255, 255, 255, 0.05); /* Very subtle line */
+    background-color: transparent; /* Blends with your background */
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.footer-content p {
+    color: #94a3b8; /* Muted slate color */
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.footer-meta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.footer-divider {
+    color: #334155;
+}
+
+.version-badge {
+    background: rgba(56, 189, 248, 0.1);
+    color: #38bdf8;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    font-weight: 700;
+}
