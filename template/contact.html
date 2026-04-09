@@ -53,35 +53,49 @@
             {% endif %}
         </div>
     </main>
+<div id="progress-overlay">
+    <div class="progress-container">
+        <div class="loader-spinner"></div>
+        <h3>Processing Smartsheet Data</h3>
+        <div class="progress-bar-bg">
+            <div id="progress-bar-fill" class="progress-bar-fill"></div>
+        </div>
+        <p id="progress-status">Initializing connection...</p>
+    </div>
+</div>
 <script>
-let pollingInterval = null;
-
-function startPolling() {
-  const box = document.getElementById("progress-box");
-  const list = document.getElementById("progress-list");
-
-  box.style.display = "block";
-  list.innerHTML = "";
-
-  pollingInterval = setInterval(() => {
-    fetch("/progress")
-      .then(res => res.json())
-      .then(data => {
-        list.innerHTML = "";
-        data.messages.forEach(msg => {
-          const li = document.createElement("li");
-          li.textContent = "• " + msg;
-          list.appendChild(li);
-        });
-      });
-  }, 1500);
-}
-
-function stopPolling() {
-  if (pollingInterval) {
-    clearInterval(pollingInterval);
-  }
-}
+document.querySelector('form').onsubmit = function() {
+    // 1. Show the overlay
+    document.getElementById('progress-overlay').style.display = 'flex';
+    
+    // 2. Start checking progress
+    let checkProgress = setInterval(function() {
+        fetch('/progress')
+            .then(response => response.json())
+            .then(data => {
+                let messages = data.messages;
+                if (messages.length > 0) {
+                    let lastMessage = messages[messages.length - 1];
+                    
+                    // Update Text
+                    document.getElementById('progress-status').innerText = lastMessage;
+                    
+                    // Dynamic Bar Logic
+                    // We calculate "fake" percentage based on the message content
+                    let percentage = 10;
+                    if (lastMessage.includes("inventory")) percentage = 30;
+                    if (lastMessage.includes("Processing")) percentage = 60;
+                    if (lastMessage.includes("Preparing CSV")) percentage = 90;
+                    if (lastMessage.includes("completed")) {
+                        percentage = 100;
+                        clearInterval(checkProgress); // Stop polling
+                    }
+                    
+                    document.getElementById('progress-bar-fill').style.width = percentage + '%';
+                }
+            });
+    }, 1000); // Poll every 1 second
+};
 </script>
 </body>
 </html>
