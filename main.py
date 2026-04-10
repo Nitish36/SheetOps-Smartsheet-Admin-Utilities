@@ -689,13 +689,8 @@ def fetch_workspace():
 def fetch_about():
     return render_template("about.html")
 
-
-@app.route("/pricing", methods=["GET", "POST"])
+@app.route("/pricing", methods=["GET","POST"])
 def fetch_pricing():
-    # If the user is already Pro or Enterprise, don't show pricing
-    if session.get("user_plan") in ["pro", "enterprise"]:
-        return redirect("/menu")
-
     return render_template("pricing.html")
 
 @app.route("/select-plan", methods=["POST"])

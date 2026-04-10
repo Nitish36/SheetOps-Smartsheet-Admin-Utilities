@@ -17,10 +17,7 @@
         <a href="/">Home</a>
         <a href="/about">About</a>
         <a href="/roadmap">Roadmap</a>
-        {% if session.get('user_plan') not in ['pro', 'enterprise'] %}
-        <!-- Show pricing for everyone else -->
-        <li><a href="/pricing">Pricing</a></li>
-        {% endif %}
+        <a href="/pricing">Pricing</a>
         <a href="/usage">Dashboard</a>
         <a href="/support">Support</a>
         {% if session.get("user_id") %}
