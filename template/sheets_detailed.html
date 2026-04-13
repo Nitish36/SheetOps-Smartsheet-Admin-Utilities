@@ -11,23 +11,34 @@
 
     <!-- Navigation -->
     <header class="navbar">
-    <div class="logo">Sheet Ops</div>
+    <a class="logo" href="/">
+        <img src="static/sheetop2.png" alt="">
+        <div>Sheet Ops</div>
+    </a>
     <nav>
         <a href="/">Home</a>
         <a href="/about">About</a>
+        <a href="/roadmap">Roadmap</a>
+        
         {% if session.get('user_plan') not in ['pro', 'enterprise'] %}
-        <a href="/pricing">Pricing</a>
+            <a href="/pricing">Pricing</a>
         {% endif %}
+
+        <!-- FIX: Removed the <li> tag here -->
         {% if session.get('user_plan') in ['pro', 'enterprise'] %}
-        <li><a href="/visualizer" class="nav-highlight">CSV Visualizer</a></li>
+            <a href="/visualizer" class="nav-highlight">CSV Visualizer</a>
         {% endif %}
+
         <a href="/usage">Dashboard</a>
+        <a href="/support">Support</a>
+
         {% if session.get("user_id") %}
-        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">Logout</a>
+            <a href="{{ url_for('auth.logout') }}" class="btn-logout">Logout</a>
         {% else %}
-        <a href="/login">Login</a>
+            <a href="/login">Login</a>
         {% endif %}
     </nav>
+    <!-- Place at the top of feature pages -->
     <div class="back-nav-container">
         <a href="/menu" class="btn-back">
             <span class="back-icon">←</span> Back to Menu

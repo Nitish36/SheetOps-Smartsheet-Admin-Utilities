@@ -15,7 +15,14 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 3rem;
+    padding: 15px 5%;
+    background-color: #0f172a;
+}
+
+.navbar nav {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* This creates consistent space between links */
 }
 
 .logo {
@@ -25,14 +32,34 @@ body {
 }
 
 .navbar nav a {
-    margin-left: 2rem;
     text-decoration: none;
-    color: #cbd5e1;
+    color: #f8fafc;
+    font-size: 14px;
     font-weight: 500;
+    white-space: nowrap; /* Prevents links from wrapping to a second line */
+    transition: color 0.3s ease;
 }
+.nav-highlight {
+    color: #38bdf8 !important; /* Teal/Blue color */
+    font-weight: 700 !important;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 5px 12px;
+    border-radius: 6px;
+    background: rgba(56, 189, 248, 0.1);
+}
+.nav-highlight:hover {
+    background: rgba(56, 189, 248, 0.2);
+}
+
 
 .navbar nav a:hover {
     color: #60a5fa;
+}
+.btn-logout {
+    background: #f87171;
+    color: white !important;
+    padding: 6px 15px;
+    border-radius: 6px;
 }
 
 .logo {
@@ -923,8 +950,4 @@ body {
 .error-actions a:hover {
     transform: translateY(-2px);
     opacity: 0.9;
-}
-.nav-highlight {
-    color: #38bdf8 !important; /* Make it a different color so it stands out */
-    font-weight: 700;
 }
