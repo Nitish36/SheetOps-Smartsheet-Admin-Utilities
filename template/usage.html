@@ -16,7 +16,9 @@
     <nav>
         <a href="/">Home</a>
         <a href="/about">About</a>
+        {% if session.get('user_plan') not in ['pro', 'enterprise'] %}
         <a href="/pricing">Pricing</a>
+        {% endif %}
         <a href="/usage">Dashboard</a>
         {% if session.get("user_id") %}
         <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">Logout</a>
