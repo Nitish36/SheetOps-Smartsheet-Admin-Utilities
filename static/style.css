@@ -21,9 +21,14 @@ body {
 }
 
 .logo {
-    font-weight: 800;
-    font-size: 1.3rem;
-    color: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.logo img {
+  height: 54px;
+  width: auto;
 }
 
 .navbar nav a {
