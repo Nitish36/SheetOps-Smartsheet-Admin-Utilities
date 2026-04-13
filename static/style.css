@@ -39,7 +39,14 @@ body {
     white-space: nowrap; /* Prevents links from wrapping to a second line */
     transition: color 0.3s ease;
 }
-
+a.logo div {
+    text-decoration: none;
+    color: #f8fafc;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: color 0.3s ease;
+}
 .nav-highlight {
     color: #38bdf8 !important; /* Teal/Blue color */
     font-weight: 700 !important;
