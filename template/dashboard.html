@@ -24,10 +24,6 @@
             <a href="/pricing">Pricing</a>
         {% endif %}
 
-        <!-- FIX: Removed the <li> tag here -->
-        {% if session.get('user_plan') in ['pro', 'enterprise'] %}
-            <a href="/visualizer" class="nav-highlight">CSV Visualizer</a>
-        {% endif %}
 
         <a href="/usage">Dashboard</a>
         <a href="/support">Support</a>
