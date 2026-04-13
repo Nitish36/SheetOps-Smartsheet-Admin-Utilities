@@ -134,37 +134,47 @@ def fetch_support():
 @app.route("/visualizer", methods=["GET", "POST"])
 @login_required
 def csv_visualizer():
-    chart_data = None
+    chart_data = {}
     if request.method == "POST":
         file = request.files.get("csv_file")
         if file and file.filename.endswith('.csv'):
-            # Read CSV using Pandas
             df = pd.read_csv(file)
 
-            # --- INTELLIGENT DATA ANALYSIS ---
-            # We detect columns and create counts for charts
-            analysis = {}
-
-            # Example 1: If 'accessLevel' exists (Sheets/Reports/Dashboards)
-            if 'accessLevel' in df.columns or 'accesslevel' in df.columns:
-                col = 'accessLevel' if 'accessLevel' in df.columns else 'accesslevel'
-                analysis['access_distribution'] = df[col].value_counts().to_dict()
-
-            # Example 2: If it's a User export
-            if 'status' in df.columns:
-                analysis['status_distribution'] = df['status'].value_counts().to_dict()
-
-            # Example 3: Generic - take the first text column with limited unique values
-            # This makes the dashboard work for ALMOST ANY CSV
-            for column in df.select_dtypes(include=['object']).columns:
-                if 1 < df[column].nunique() < 15:
-                    analysis['generic_chart'] = {
-                        "label": column,
-                        "data": df[column].value_counts().to_dict()
-                    }
+            # --- 1. Access Level (Common in Sheets/Reports) ---
+            for col in ['accessLevel', 'accesslevel', 'workspace.accessLevel']:
+                if col in df.columns:
+                    chart_data['access'] = df[col].value_counts().to_dict()
                     break
 
-            chart_data = analysis
+            # --- 2. Owner Analysis (Who is the busiest admin?) ---
+            for col in ['owner', 'owner.email', 'Email']:
+                if col in df.columns:
+                    # Take top 10 owners if there are many
+                    chart_data['owners'] = df[col].value_counts().head(10).to_dict()
+                    break
+
+            # --- 3. Timeline Analysis (Items created over time) ---
+            for col in ['createdAt', 'created_at', 'Created At']:
+                if col in df.columns:
+                    try:
+                        df['temp_date'] = pd.to_datetime(df[col]).dt.date
+                        timeline = df['temp_date'].value_counts().sort_index().to_dict()
+                        # Convert keys to strings for JSON
+                        chart_data['timeline'] = {str(k): v for k, v in timeline.items()}
+                    except:
+                        pass
+                    break
+
+            # --- 4. Workspace/Group Analysis ---
+            for col in ['workspace.name', 'group_name', 'Source']:
+                if col in df.columns:
+                    chart_data['groups'] = df[col].value_counts().head(8).to_dict()
+                    break
+
+            # --- 5. Summary Metrics (Total Rows, Average Versions) ---
+            if 'totalRowCount' in df.columns:
+                chart_data['total_rows'] = int(df['totalRowCount'].sum())
+                chart_data['avg_rows'] = round(float(df['totalRowCount'].mean()), 2)
 
     return render_template("visualizer.html", chart_data=chart_data)
 

@@ -61,53 +61,116 @@
     </div>
 
     {% if chart_data %}
+    <!-- KPI Row -->
+    <div class="kpi-row">
+        {% if chart_data.total_rows %}
+        <div class="kpi-card">
+            <h4>Total Records Count</h4>
+            <p>{{ chart_data.total_rows }}</p>
+        </div>
+        <div class="kpi-card">
+            <h4>Avg. Rows per Sheet</h4>
+            <p>{{ chart_data.avg_rows }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Chart Grid -->
     <div class="dashboard-grid">
-        {% if chart_data.access_distribution %}
+        {% if chart_data.timeline %}
+        <div class="chart-card wide">
+            <h3>Creation Timeline</h3>
+            <canvas id="timelineChart"></canvas>
+        </div>
+        {% endif %}
+
+        {% if chart_data.access %}
         <div class="chart-card">
-            <h3>Permissions Distribution</h3>
+            <h3>Permissions</h3>
             <canvas id="accessChart"></canvas>
         </div>
         {% endif %}
 
-        {% if chart_data.generic_chart %}
+        {% if chart_data.owners %}
         <div class="chart-card">
-            <h3>Distribution by {{ chart_data.generic_chart.label }}</h3>
-            <canvas id="genericChart"></canvas>
+            <h3>Top 10 Owners</h3>
+            <canvas id="ownerChart"></canvas>
+        </div>
+        {% endif %}
+
+        {% if chart_data.groups %}
+        <div class="chart-card">
+            <h3>Workspace/Group Split</h3>
+            <canvas id="groupChart"></canvas>
         </div>
         {% endif %}
     </div>
     {% endif %}
 </div>
 <script>
-    {% if chart_data %}
-        // Access Level Chart
-        {% if chart_data.access_distribution %}
-        new Chart(document.getElementById('accessChart'), {
-            type: 'doughnut',
-            data: {
-                labels: {{ chart_data.access_distribution.keys()|list|tojson }},
-                datasets: [{
-                    data: {{ chart_data.access_distribution.values()|list|tojson }},
-                    backgroundColor: ['#0d9488', '#38bdf8', '#fbbf24', '#f87171']
-                }]
-            }
-        });
-        {% endif %}
+    document.getElementById('csv_file').onchange = function () {
+        // Show the name of the file selected in the span
+        let fileName = this.value.split('\\').pop();
+        document.getElementById('file-name-display').innerText = fileName ? fileName : "No file chosen";
+    };
+    const colors = ['#0d9488', '#38bdf8', '#fbbf24', '#f87171', '#818cf8', '#34d399'];
 
-        // Generic Chart
-        {% if chart_data.generic_chart %}
-        new Chart(document.getElementById('genericChart'), {
-            type: 'bar',
-            data: {
-                labels: {{ chart_data.generic_chart.data.keys()|list|tojson }},
-                datasets: [{
-                    label: 'Count',
-                    data: {{ chart_data.generic_chart.data.values()|list|tojson }},
-                    backgroundColor: '#38bdf8'
-                }]
-            }
-        });
-        {% endif %}
+    {% if chart_data.timeline %}
+    new Chart(document.getElementById('timelineChart'), {
+        type: 'line',
+        data: {
+            labels: {{ chart_data.timeline.keys()|list|tojson }},
+            datasets: [{
+                label: 'Items Created',
+                data: {{ chart_data.timeline.values()|list|tojson }},
+                borderColor: '#38bdf8',
+                tension: 0.3,
+                fill: true,
+                backgroundColor: 'rgba(56, 189, 248, 0.1)'
+            }]
+        }
+    });
+    {% endif %}
+
+    {% if chart_data.access %}
+    new Chart(document.getElementById('accessChart'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ chart_data.access.keys()|list|tojson }},
+            datasets: [{
+                data: {{ chart_data.access.values()|list|tojson }},
+                backgroundColor: colors
+            }]
+        }
+    });
+    {% endif %}
+
+    {% if chart_data.owners %}
+    new Chart(document.getElementById('ownerChart'), {
+        type: 'bar',
+        indexAxis: 'y', // Horizontal Bar
+        data: {
+            labels: {{ chart_data.owners.keys()|list|tojson }},
+            datasets: [{
+                label: 'Records Owned',
+                data: {{ chart_data.owners.values()|list|tojson }},
+                backgroundColor: '#0d9488'
+            }]
+        }
+    });
+    {% endif %}
+
+    {% if chart_data.groups %}
+    new Chart(document.getElementById('groupChart'), {
+        type: 'pie',
+        data: {
+            labels: {{ chart_data.groups.keys()|list|tojson }},
+            datasets: [{
+                data: {{ chart_data.groups.values()|list|tojson }},
+                backgroundColor: colors
+            }]
+        }
+    });
     {% endif %}
 </script>
 </body>
