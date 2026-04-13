@@ -924,3 +924,7 @@ body {
     transform: translateY(-2px);
     opacity: 0.9;
 }
+.nav-highlight {
+    color: #38bdf8 !important; /* Make it a different color so it stands out */
+    font-weight: 700;
+}

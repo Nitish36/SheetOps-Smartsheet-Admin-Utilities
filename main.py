@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, send_file, session, redirect,
 from sqlalchemy import func
 import requests
 import pandas as pd
+import json
 from io import BytesIO
 import urllib3
 import secrets
@@ -128,6 +129,44 @@ def fetch_support():
     dashboard_url = "https://app.smartsheet.com/b/publish?EQBCT=ce687d7f3ac3404b93fbcdf600da42b7"
 
     return render_template("support.html", form_url=form_url, dashboard_url=dashboard_url)
+
+
+@app.route("/visualizer", methods=["GET", "POST"])
+@login_required
+def csv_visualizer():
+    chart_data = None
+    if request.method == "POST":
+        file = request.files.get("csv_file")
+        if file and file.filename.endswith('.csv'):
+            # Read CSV using Pandas
+            df = pd.read_csv(file)
+
+            # --- INTELLIGENT DATA ANALYSIS ---
+            # We detect columns and create counts for charts
+            analysis = {}
+
+            # Example 1: If 'accessLevel' exists (Sheets/Reports/Dashboards)
+            if 'accessLevel' in df.columns or 'accesslevel' in df.columns:
+                col = 'accessLevel' if 'accessLevel' in df.columns else 'accesslevel'
+                analysis['access_distribution'] = df[col].value_counts().to_dict()
+
+            # Example 2: If it's a User export
+            if 'status' in df.columns:
+                analysis['status_distribution'] = df['status'].value_counts().to_dict()
+
+            # Example 3: Generic - take the first text column with limited unique values
+            # This makes the dashboard work for ALMOST ANY CSV
+            for column in df.select_dtypes(include=['object']).columns:
+                if 1 < df[column].nunique() < 15:
+                    analysis['generic_chart'] = {
+                        "label": column,
+                        "data": df[column].value_counts().to_dict()
+                    }
+                    break
+
+            chart_data = analysis
+
+    return render_template("visualizer.html", chart_data=chart_data)
 
 @app.route("/menu", methods=["GET","POST"])
 @login_required

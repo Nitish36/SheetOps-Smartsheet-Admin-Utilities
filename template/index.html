@@ -30,6 +30,9 @@
         {% if session.get('user_plan') not in ['pro', 'enterprise'] %}
         <a href="/pricing">Pricing</a>
         {% endif %}
+        {% if session.get('user_plan') in ['pro', 'enterprise'] %}
+        <li><a href="/visualizer" class="nav-highlight">CSV Visualizer</a></li>
+        {% endif %}
         <a href="/usage">Dashboard</a>
         <a href="/support">Support</a>
         {% if session.get("user_id") %}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sheet Ops</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='splash.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='web-crawler.png') }}">
+    <script src="{{ url_for('static', filename='splash.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="visualizer-container">
+    <h1>CSV Insights Visualizer</h1>
+    <p>Upload any SheetOps CSV export to see a visual breakdown of your data.</p>
+
+    <!-- Upload Section -->
+    <div class="upload-box">
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="csv_file" accept=".csv" required id="fileInput">
+            <label for="fileInput" class="btn-outline">Choose CSV File</label>
+            <button type="submit" class="btn-primary">Generate Dashboard</button>
+        </form>
+    </div>
+
+    {% if chart_data %}
+    <div class="dashboard-grid">
+        {% if chart_data.access_distribution %}
+        <div class="chart-card">
+            <h3>Permissions Distribution</h3>
+            <canvas id="accessChart"></canvas>
+        </div>
+        {% endif %}
+
+        {% if chart_data.generic_chart %}
+        <div class="chart-card">
+            <h3>Distribution by {{ chart_data.generic_chart.label }}</h3>
+            <canvas id="genericChart"></canvas>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+<script>
+    {% if chart_data %}
+        // Access Level Chart
+        {% if chart_data.access_distribution %}
+        new Chart(document.getElementById('accessChart'), {
+            type: 'doughnut',
+            data: {
+                labels: {{ chart_data.access_distribution.keys()|list|tojson }},
+                datasets: [{
+                    data: {{ chart_data.access_distribution.values()|list|tojson }},
+                    backgroundColor: ['#0d9488', '#38bdf8', '#fbbf24', '#f87171']
+                }]
+            }
+        });
+        {% endif %}
+
+        // Generic Chart
+        {% if chart_data.generic_chart %}
+        new Chart(document.getElementById('genericChart'), {
+            type: 'bar',
+            data: {
+                labels: {{ chart_data.generic_chart.data.keys()|list|tojson }},
+                datasets: [{
+                    label: 'Count',
+                    data: {{ chart_data.generic_chart.data.values()|list|tojson }},
+                    backgroundColor: '#38bdf8'
+                }]
+            }
+        });
+        {% endif %}
+    {% endif %}
+</script>
+</body>
+</html>
