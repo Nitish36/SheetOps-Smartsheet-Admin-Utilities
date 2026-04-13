@@ -951,3 +951,76 @@ body {
     transform: translateY(-2px);
     opacity: 0.9;
 }
+
+/* Container Spacing */
+.visualizer-container {
+    padding: 60px 5%;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.subtitle {
+    color: #94a3b8;
+    margin-bottom: 30px;
+}
+
+/* The Magic Flexbox Row */
+.upload-form {
+    display: flex;
+    align-items: center; /* Centers items vertically */
+    gap: 20px;           /* Consistent horizontal spacing */
+    background: #1e293b; /* Subtle dark box around the uploader */
+    padding: 20px 30px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    width: fit-content;
+}
+
+/* Hide the default browser "Choose File" button */
+.hidden-input {
+    display: none;
+}
+
+/* Style the label to look like a clean button */
+.btn-outline-upload {
+    background: transparent;
+    border: 1px solid #38bdf8;
+    color: #38bdf8;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-upload:hover {
+    background: rgba(56, 189, 248, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Style the file name text */
+#file-name-display {
+    color: #cbd5e1;
+    font-size: 14px;
+    min-width: 150px; /* Prevents button from jumping when name appears */
+}
+
+/* The Generate Button */
+.btn-primary-generate {
+    background: #0d9488;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(13, 148, 136, 0.4); /* That teal glow from your screen */
+}
+
+.btn-primary-generate:hover {
+    background: #0f766e;
+    box-shadow: 0 0 25px rgba(13, 148, 136, 0.6);
+    transform: translateY(-2px);
+}

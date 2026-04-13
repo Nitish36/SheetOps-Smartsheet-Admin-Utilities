@@ -10,16 +10,53 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="visualizer-container">
-    <h1>CSV Insights Visualizer</h1>
-    <p>Upload any SheetOps CSV export to see a visual breakdown of your data.</p>
+<header class="navbar">
+    <a class="logo" href="/">
+        <img src="static/sheetop2.png" alt="">
+        <div>Sheet Ops</div>
+    </a>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/roadmap">Roadmap</a>
+        
+        {% if session.get('user_plan') not in ['pro', 'enterprise'] %}
+            <a href="/pricing">Pricing</a>
+        {% endif %}
 
-    <!-- Upload Section -->
-    <div class="upload-box">
-        <form method="POST" enctype="multipart/form-data">
-            <input type="file" name="csv_file" accept=".csv" required id="fileInput">
-            <label for="fileInput" class="btn-outline">Choose CSV File</label>
-            <button type="submit" class="btn-primary">Generate Dashboard</button>
+        <!-- FIX: Removed the <li> tag here -->
+        {% if session.get('user_plan') in ['pro', 'enterprise'] %}
+            <a href="/visualizer" class="nav-highlight">CSV Visualizer</a>
+        {% endif %}
+
+        <a href="/usage">Dashboard</a>
+        <a href="/support">Support</a>
+
+        {% if session.get("user_id") %}
+            <a href="{{ url_for('auth.logout') }}" class="btn-logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+        {% endif %}
+    </nav>
+</header>
+<div class="visualizer-container">
+    <h1>CSV Insights Visualizer</h1>
+    <p class="subtitle">Upload any SheetOps CSV export to see a visual breakdown of your data.</p>
+
+    <div class="upload-section">
+        <form method="POST" enctype="multipart/form-data" class="upload-form">
+            <!-- Hide the actual input, but keep it functional -->
+            <input type="file" name="csv_file" id="csv_file" class="hidden-input" accept=".csv" required>
+            
+            <!-- This label acts as our "Choose File" button -->
+            <label for="csv_file" class="btn-outline-upload">
+                Choose CSV File
+            </label>
+            
+            <!-- This shows the file name -->
+            <span id="file-name-display">No file chosen</span>
+
+            <button type="submit" class="btn-primary-generate">Generate Dashboard</button>
         </form>
     </div>
 
